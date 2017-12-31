@@ -10,6 +10,7 @@ public class ClientForConnections {
     private AtomicBoolean isLoggedIn;
     private final ConnectionHandler handler;
 
+
     public ClientForConnections(int id, ConnectionHandler handler){
         this.id=id;
         isLoggedIn = new AtomicBoolean(false);

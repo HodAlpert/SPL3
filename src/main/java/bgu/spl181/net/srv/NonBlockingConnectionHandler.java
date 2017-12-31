@@ -79,14 +79,14 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         return !chan.isOpen();
     }
 
-    public void continueWrite() {//commited by the SelectorThread
+    public void continueWrite() {//committed by the SelectorThread
         while (!writeQueue.isEmpty()) {
             try {
                 ByteBuffer top = writeQueue.peek();
                 chan.write(top);//deletes bytes from the buffer and write them to WriteQueue
                 if (top.hasRemaining()) {//if we couldn't finish write the whole message
                     return;//thread will go to sleep until next time
-                } else {//if we emptyed the buffer
+                } else {//if we emptied the buffer
                     writeQueue.remove();//removes buffer itself from queue
                 }
             } catch (IOException ex) {
@@ -116,6 +116,9 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 
     @Override
     public void send(T msg) {
-        //TODO
+        ByteBuffer buf = ByteBuffer.allocate(BUFFER_ALLOCATION_SIZE);// todo size check
+        buf.put(encdec.encode(msg));
+        writeQueue.add(buf);//adding the out message
+        reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
     }
 }

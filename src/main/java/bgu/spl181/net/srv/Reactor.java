@@ -45,26 +45,27 @@ public class Reactor<T> implements Server<T> {
 
             serverSock.bind(new InetSocketAddress(port));
             serverSock.configureBlocking(false);
-            serverSock.register(selector, SelectionKey.OP_ACCEPT);
+            serverSock.register(selector, SelectionKey.OP_ACCEPT);//registering the ssc in the selector for ACCEPT event
 			System.out.println("Server started");
 
             while (!Thread.currentThread().isInterrupted()) {
 
-                selector.select();
-                runSelectionThreadTasks();
+                selector.select();//wait until something happened
+                runSelectionThreadTasks();//?????
 
-                for (SelectionKey key : selector.selectedKeys()) {
+                for (SelectionKey key : selector.selectedKeys()) {//
 
-                    if (!key.isValid()) {
+                    if (!key.isValid()) {//making sure socket is still valid and not deleted or something
                         continue;
-                    } else if (key.isAcceptable()) {
+                    } else if (key.isAcceptable()) {//if the event is ACCEPT
                         handleAccept(serverSock, selector);
-                    } else {
+                    } else {//if the event is READ or WRITE
                         handleReadWrite(key);
                     }
                 }
 
                 selector.selectedKeys().clear(); //clear the selected keys set so that we can know about new events
+                //selected keys is only a copy and not the real one
 
             }
 
@@ -79,7 +80,7 @@ public class Reactor<T> implements Server<T> {
         pool.shutdown();
     }
 
-    /*package*/ void updateInterestedOps(SocketChannel chan, int ops) {
+    /*package*/ void updateInterestedOps(SocketChannel chan, int ops) {//changing the status of READ to WRITE etc..
         final SelectionKey key = chan.keyFor(selector);
         if (Thread.currentThread() == selectorThread) {
             key.interestOps(ops);
@@ -92,24 +93,29 @@ public class Reactor<T> implements Server<T> {
     }
 
 
+    /**
+     * @param serverChan
+     * @param selector
+     * @throws IOException
+     * handled by selectorThread one a new client was registered to server
+     */
     private void handleAccept(ServerSocketChannel serverChan, Selector selector) throws IOException {
-        SocketChannel clientChan = serverChan.accept();
+        SocketChannel clientChan = serverChan.accept();//configuring channel
         clientChan.configureBlocking(false);
-        final NonBlockingConnectionHandler handler = new NonBlockingConnectionHandler(
+        final NonBlockingConnectionHandler handler = new NonBlockingConnectionHandler(//defining new connection handler for the client
                 readerFactory.get(),
                 protocolFactory.get(),
                 clientChan,
-                this);
-        clientChan.register(selector, SelectionKey.OP_READ, handler);
+                this);//needs the reactor to change READ to WRIte etc..
+        clientChan.register(selector, SelectionKey.OP_READ, handler);//registering the clientChannel with READ
     }
 
     private void handleReadWrite(SelectionKey key) {
-        NonBlockingConnectionHandler handler = (NonBlockingConnectionHandler) key.attachment();
-
+        NonBlockingConnectionHandler handler = (NonBlockingConnectionHandler) key.attachment();//attachment is what we decided to attach
         if (key.isReadable()) {
-            Runnable task = handler.continueRead();
+            Runnable task = handler.continueRead();//returns a runnable task which we can now give the executor
             if (task != null) {
-                pool.submit(handler, task);
+                pool.submit(handler, task);//delivering the executable came back from reading back to the pool
             }
         }
 

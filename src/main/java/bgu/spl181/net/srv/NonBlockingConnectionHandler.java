@@ -2,7 +2,6 @@ package bgu.spl181.net.srv;
 
 import bgu.spl181.net.api.MessageEncoderDecoder;
 import bgu.spl181.net.api.MessagingProtocol;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -17,7 +16,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 
     private final MessagingProtocol<T> protocol;
     private final MessageEncoderDecoder<T> encdec;
-    private final Queue<ByteBuffer> writeQueue = new ConcurrentLinkedQueue<>();
+    private final Queue<ByteBuffer> writeQueue = new ConcurrentLinkedQueue<>();//so called out
     private final SocketChannel chan;
     private final Reactor reactor;
 
@@ -32,7 +31,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         this.reactor = reactor;
     }
 
-    public Runnable continueRead() {
+    public Runnable continueRead() {//runs by the SelectorThread- makes input into a task
         ByteBuffer buf = leaseBuffer();
 
         boolean success = false;
@@ -43,15 +42,15 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         }
 
         if (success) {
-            buf.flip();
-            return () -> {
+            buf.flip();//????
+            return () -> {//lambda to give the executor
                 try {
                     while (buf.hasRemaining()) {
                         T nextMessage = encdec.decodeNextByte(buf.get());
                         if (nextMessage != null) {
-                            T response = protocol.process(nextMessage);
-                            if (response != null) {
-                                writeQueue.add(ByteBuffer.wrap(encdec.encode(response)));
+                            T response = protocol.process(nextMessage);//getting the answer to the message
+                            if (response != null) {//if there is an answer
+                                writeQueue.add(ByteBuffer.wrap(encdec.encode(response)));//adding the out message
                                 reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
                             }
                         }
@@ -80,15 +79,15 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         return !chan.isOpen();
     }
 
-    public void continueWrite() {
+    public void continueWrite() {//commited by the SelectorThread
         while (!writeQueue.isEmpty()) {
             try {
                 ByteBuffer top = writeQueue.peek();
-                chan.write(top);
-                if (top.hasRemaining()) {
-                    return;
-                } else {
-                    writeQueue.remove();
+                chan.write(top);//deletes bytes from the buffer and write them to WriteQueue
+                if (top.hasRemaining()) {//if we couldn't finish write the whole message
+                    return;//thread will go to sleep until next time
+                } else {//if we emptyed the buffer
+                    writeQueue.remove();//removes buffer itself from queue
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -96,9 +95,9 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
             }
         }
 
-        if (writeQueue.isEmpty()) {
+        if (writeQueue.isEmpty()) {//assuming we finished writing all what was in WriteQueue
             if (protocol.shouldTerminate()) close();
-            else reactor.updateInterestedOps(chan, SelectionKey.OP_READ);
+            else reactor.updateInterestedOps(chan, SelectionKey.OP_READ);//updating selector to notify only when READ happens
         }
     }
 
@@ -107,7 +106,6 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         if (buff == null) {
             return ByteBuffer.allocateDirect(BUFFER_ALLOCATION_SIZE);
         }
-
         buff.clear();
         return buff;
     }
@@ -116,4 +114,8 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         BUFFER_POOL.add(buff);
     }
 
+    @Override
+    public void send(T msg) {
+        //TODO
+    }
 }

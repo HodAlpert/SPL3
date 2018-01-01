@@ -3,6 +3,7 @@ package bgu.spl181.net.srv;
 import bgu.spl181.net.api.MessageEncoderDecoder;
 import bgu.spl181.net.api.MessagingProtocol;
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl181.net.api.bidi.Connections;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -23,8 +24,8 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     private final Reactor reactor;
 
     public NonBlockingConnectionHandler(
-            MessageEncoderDecoder<T> reader,
-            BidiMessagingProtocol<T> protocol,
+            MessageEncoderDecoder reader,
+            BidiMessagingProtocol protocol,
             SocketChannel chan,
             Reactor reactor) {
         this.chan = chan;

@@ -11,7 +11,7 @@ public class ReactorMain {
 
         Reactor<String> server = new Reactor<>(
                 6,
-                1000, //The port
+                2000, //The port
 
                 BidiProtocol<String>::new, //protocol factory
 

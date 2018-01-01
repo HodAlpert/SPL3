@@ -2,6 +2,8 @@ package bgu.spl181.net.srv;
 
 import bgu.spl181.net.api.MessageEncoderDecoder;
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl181.net.api.bidi.Connections;
+import bgu.spl181.net.impl.ServerConnections;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -11,6 +13,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 public class Reactor<T> implements Server<T> {
@@ -23,6 +26,8 @@ public class Reactor<T> implements Server<T> {
 
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
+    private Connections connections;
+    private AtomicInteger counter = new AtomicInteger(0);
 
     public Reactor(
             int numThreads,
@@ -34,6 +39,7 @@ public class Reactor<T> implements Server<T> {
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.readerFactory = readerFactory;
+        connections = new ServerConnections();
     }
 
     @Override
@@ -103,11 +109,16 @@ public class Reactor<T> implements Server<T> {
     private void handleAccept(ServerSocketChannel serverChan, Selector selector) throws IOException {
         SocketChannel clientChan = serverChan.accept();//configuring channel
         clientChan.configureBlocking(false);
+        int connectionId = counter.getAndIncrement();
+        BidiMessagingProtocol protocol = protocolFactory.get();
+
         final NonBlockingConnectionHandler handler = new NonBlockingConnectionHandler(//defining new connection handler for the client
                 readerFactory.get(),
-                protocolFactory.get(),
+                protocol,
                 clientChan,
                 this);//needs the reactor to change READ to WRIte etc..
+        protocol.start(connectionId,connections);
+        ((ServerConnections)connections).activate(connectionId,handler);
         clientChan.register(selector, SelectionKey.OP_READ, handler);//registering the clientChannel with READ
     }
 

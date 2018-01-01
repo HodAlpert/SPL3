@@ -8,10 +8,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
     private Connections connections;
     private int connectionId;
-    private AtomicBoolean terminate;
+    private AtomicBoolean terminate = new AtomicBoolean(false);
 
     public BidiProtocol() {
-        this.terminate.set(false);
     }
 
     @Override

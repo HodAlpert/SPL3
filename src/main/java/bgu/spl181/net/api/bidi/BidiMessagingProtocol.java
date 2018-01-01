@@ -5,9 +5,11 @@
  */
 package bgu.spl181.net.api.bidi;
 
+import bgu.spl181.net.srv.ConnectionHandler;
+
 public interface BidiMessagingProtocol<T>  {
 
-    void start(int connectionId, Connections<T> connections);
+    void start(int connectionId, Connections<T> connections, ConnectionHandler<T> handler);
 
     void process(T message);
 

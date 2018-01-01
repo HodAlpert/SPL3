@@ -117,8 +117,7 @@ public class Reactor<T> implements Server<T> {
                 protocol,
                 clientChan,
                 this);//needs the reactor to change READ to WRIte etc..
-        protocol.start(connectionId,connections);
-        ((ServerConnections)connections).activate(connectionId,handler);
+        protocol.start(connectionId,connections,handler);
         clientChan.register(selector, SelectionKey.OP_READ, handler);//registering the clientChannel with READ
     }
 

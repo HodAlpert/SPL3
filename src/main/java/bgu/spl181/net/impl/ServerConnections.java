@@ -41,4 +41,9 @@ public class ServerConnections<T> implements Connections<T> {
     public void connect(int connectionId){
         map.get(connectionId).setIsLoggedIn(true);
     }
+
+    @Override
+    public boolean isloogedIn(int connectionId) {//checks if user is connected and logged in
+        return (map.containsKey(connectionId)&&map.get(connectionId).isLoogedin());
+    }
 }

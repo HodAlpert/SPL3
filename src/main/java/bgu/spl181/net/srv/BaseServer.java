@@ -4,6 +4,7 @@ import bgu.spl181.net.api.MessageEncoderDecoder;
 import bgu.spl181.net.api.MessagingProtocol;
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl181.net.api.bidi.Connections;
+import bgu.spl181.net.impl.BidiProtocol;
 import bgu.spl181.net.impl.ServerConnections;
 
 import java.io.IOException;
@@ -45,12 +46,13 @@ public abstract class BaseServer<T> implements Server<T> {
             while (!Thread.currentThread().isInterrupted()) {
 
                 Socket clientSock = serverSock.accept();
-
+                BidiMessagingProtocol protocol = protocolFactory.get();
                 BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<T>(
                         clientSock,
                         encdecFactory.get(),
-                        protocolFactory.get(),
+                        protocol,
                         this.connections);
+                protocol.start(connectCount.getAndIncrement(),connections,handler);
 
                 execute(handler);
             }

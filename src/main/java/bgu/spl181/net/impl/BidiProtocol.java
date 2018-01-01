@@ -29,4 +29,5 @@ public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
     public boolean shouldTerminate() {
         return terminate.get();
     }
+
 }

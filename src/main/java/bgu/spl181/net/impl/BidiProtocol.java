@@ -19,13 +19,20 @@ public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
         this.connectionId = connectionId;
         this.connections = connections;
         connections.activate(connectionId,handler);
+        System.out.println("Client "+ connectionId+ ": connected");
+
 
     }
 
     @Override
     public void process(T message) {
         System.out.println(message);
-        connections.send(this.connectionId,message + "hahaha");
+        connections.send(this.connectionId,message);
+        if (message.equals("bye")){
+            connections.disconnect(connectionId);
+            System.out.println("Client "+ connectionId+ ": disconnected");
+
+        }
     }
 
     @Override

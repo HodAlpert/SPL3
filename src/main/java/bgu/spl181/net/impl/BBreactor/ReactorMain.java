@@ -7,11 +7,9 @@ import bgu.spl181.net.srv.Reactor;
 
 public class ReactorMain {
     public static void main(String[] args) {
-
-
-        Reactor<String> server = new Reactor<>(
-                6,
-                2000, //The port
+               Reactor<String> server = new Reactor<>(
+                Integer.decode(args[0]),//the port
+                10,//num of threads
 
                 BidiProtocol<String>::new, //protocol factory
 

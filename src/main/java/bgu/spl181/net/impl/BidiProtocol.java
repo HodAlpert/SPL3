@@ -26,12 +26,11 @@ public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
 
     @Override
     public void process(T message) {
-        System.out.println(message);
+        System.out.println("Client "+ connectionId+ ":"+message);
         connections.send(this.connectionId,message);
         if (message.equals("bye")){
             connections.disconnect(connectionId);
             System.out.println("Client "+ connectionId+ ": disconnected");
-
         }
     }
 

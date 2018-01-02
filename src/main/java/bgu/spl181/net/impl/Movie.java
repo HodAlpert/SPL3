@@ -67,11 +67,13 @@ public class Movie {
 
     @Override
     public String toString() {
-        return "Movie{ " +
-                "id= '" + id + '\'' +
-                ", name= '" + name + '\'' +
-                ", price= " + price +
-                ", bannedCountries= " + bannedCountries +
+        return "Movie{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", availableAmount=" + availableAmount +
+                ", totalAmount=" + totalAmount +
+                ", bannedCountries=" + bannedCountries +
                 '}';
     }
 }

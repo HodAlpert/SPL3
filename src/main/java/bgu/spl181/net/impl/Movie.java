@@ -5,7 +5,7 @@ import java.util.List;
 public class Movie {
     private String id;
     private String name;
-    private int price;
+    private int price,availableAmount,totalAmount;
     private List<String> bannedCountries;
 
     public Movie(String id, String name, int price, List<String> bannedCountries) {
@@ -31,6 +31,14 @@ public class Movie {
         return bannedCountries;
     }
 
+    public int getAvailableAmount() {
+        return availableAmount;
+    }
+
+    public int getTotalAmount() {
+        return totalAmount;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
@@ -41,6 +49,14 @@ public class Movie {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public void setAvailableAmount(int availableAmount) {
+        this.availableAmount = availableAmount;
+    }
+
+    public void setTotalAmount(int totalAmount) {
+        this.totalAmount = totalAmount;
     }
 
     public void setBannedCountries(List<String> bannedCountries) {

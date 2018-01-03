@@ -46,7 +46,7 @@ public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
             signout(); //disconnected after signout
     }
     private void register(String [] input){
-        if (input.length == 3) {
+        if (input.length == 4) {
             if (!service.registerUser(input[1], input[2], input[3]))
                 error("registration failed");
             else

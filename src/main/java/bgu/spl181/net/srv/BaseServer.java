@@ -1,5 +1,6 @@
 package bgu.spl181.net.srv;
 
+import bgu.spl181.net.api.DataHandler;
 import bgu.spl181.net.api.MessageEncoderDecoder;
 import bgu.spl181.net.api.MessagingProtocol;
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
@@ -21,11 +22,13 @@ public abstract class BaseServer<T> implements Server<T> {
     private ServerSocket sock;
     private Connections connections;
     private AtomicInteger connectCount;
+    private DataHandler service;
 
     public BaseServer(
             int port,
             Supplier<BidiMessagingProtocol<T>> protocolFactory,
-            Supplier<MessageEncoderDecoder<T>> encdecFactory) {
+            Supplier<MessageEncoderDecoder<T>> encdecFactory,
+            DataHandler service) {
 
         this.port = port;
         this.protocolFactory = protocolFactory;
@@ -33,6 +36,7 @@ public abstract class BaseServer<T> implements Server<T> {
 		this.sock = null;
 		this.connections=new ServerConnections();
 		this.connectCount = new AtomicInteger(0);
+		this.service=service;
     }
 
     @Override
@@ -52,7 +56,7 @@ public abstract class BaseServer<T> implements Server<T> {
                         encdecFactory.get(),
                         protocol,
                         this.connections);
-                protocol.start(connectCount.getAndIncrement(),connections,handler);
+                protocol.start(connectCount.getAndIncrement(),connections,handler,service);
 
                 execute(handler);
             }

@@ -7,6 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+
+import bgu.spl181.net.api.bidi.Connections;
 import com.google.gson.Gson;
 
 public class MovieRentalService implements MovieRenatlDataHandler {
@@ -84,6 +86,17 @@ public class MovieRentalService implements MovieRenatlDataHandler {
      */
     @Override
     public boolean loginValidation(String name, String password) {
+        return false;
+    }
+
+    @Override
+    public User getUser(String name) {
+        return users.get(name);
+    }
+
+    @Override
+    public boolean proccessRequest(String[] request, User user, Connections connections, int connectionId) {
+        // todo implement ;)
         return false;
     }
 

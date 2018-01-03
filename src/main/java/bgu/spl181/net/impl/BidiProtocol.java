@@ -26,6 +26,8 @@ public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
 
     @Override
     public void process(T message) {
+        MovieRentalService service = MovieRentalService.getInstance();
+        service.registerUser("hod","246315", "israel");
         System.out.println("Client "+ connectionId+ ":"+message);
         connections.send(this.connectionId,message);
         if (message.equals("bye")){

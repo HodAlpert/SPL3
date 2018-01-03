@@ -1,6 +1,8 @@
 package bgu.spl181.net.impl;
 
-public class MovieInUser {
+import java.io.Serializable;
+
+public class MovieInUser implements Serializable {
     private String id;
     private String name;
 

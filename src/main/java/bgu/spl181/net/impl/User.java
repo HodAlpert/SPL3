@@ -55,12 +55,12 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "username='" + username + '\n' +
-                ", type='" + type + '\n' +
-                ", country='" + country + '\n' +
-                ", movies=" + movies +'\n' +
-                ", balance=" + balance +'\n' +
+        return "\n" +
+                "username: " + username + '\n' +
+                "type: " + type + '\n' +
+                "country: " + country + '\n' +
+                "movies: " + movies +'\n' +
+                "balance: " + balance +'\n' +
                 '}';
     }
 }

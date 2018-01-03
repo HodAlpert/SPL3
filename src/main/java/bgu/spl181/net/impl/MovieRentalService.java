@@ -37,16 +37,14 @@ public class MovieRentalService {
         for(Movie movie: movielist.getMovies()){
             movies.put(movie.getName(), movie);
         }
-        for (Movie movie:movies.values()){
-            System.out.println(movie);
-        }
-        for(User user:users.values()){
-            System.out.println(user);
-        }
-
-
-
+        System.out.println(this);
     }
 
-
+    @Override
+    public String toString() {
+        return
+                "users: \n" + users +'\n'+'\n'+
+                "movies: \n" + movies +
+                '}';
+    }
 }

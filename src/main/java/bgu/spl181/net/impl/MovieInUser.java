@@ -19,9 +19,9 @@ public class MovieInUser {
 
     @Override
     public String toString() {
-        return "MovieInUser{" +
-                "id='" + id + '\n' +
-                ", name='" + name + '\n' +
+        return
+                '\n'+"\t id: " + id + '\n' +
+                "\t name: " + name + '\n' +
                 '}';
     }
 }

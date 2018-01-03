@@ -8,4 +8,11 @@ public class UsersList {
     public List<User> getUsers() {
         return users;
     }
+
+    @Override
+    public String toString() {
+        return "UsersList{" +
+                "users=" + users +
+                '}';
+    }
 }

@@ -1,14 +1,13 @@
 package bgu.spl181.net.impl;
 
 import bgu.spl181.net.api.MovieRenatlDataHandler;
-import com.google.gson.Gson;
-
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import com.google.gson.Gson;
 
 public class MovieRentalService implements MovieRenatlDataHandler {
     private HashMap<String,User> users;

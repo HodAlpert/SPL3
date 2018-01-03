@@ -29,5 +29,5 @@ public interface Connections<T> {
      * @param connectionId num of user
      * @return true if user is connected AND loggedIn
      */
-    boolean isloogedIn(int connectionId);
+    boolean islogedIn(int connectionId);
 }

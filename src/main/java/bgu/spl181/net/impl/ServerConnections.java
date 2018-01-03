@@ -10,7 +10,7 @@ public class ServerConnections<T> implements Connections<T> {
     private ConcurrentHashMap<Integer,ClientForConnections> map;
 
     public ServerConnections() {
-        this.map = new ConcurrentHashMap<Integer,ClientForConnections>();
+        this.map = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -49,7 +49,7 @@ public class ServerConnections<T> implements Connections<T> {
     }
 
     @Override
-    public boolean isloogedIn(int connectionId) {//checks if user is connected and logged in
-        return (map.containsKey(connectionId)&&map.get(connectionId).isLoogedin());
+    public boolean islogedIn(int connectionId) {//checks if user is connected and logged in
+        return (map.containsKey(connectionId)&&map.get(connectionId).isLogedin());
     }
 }

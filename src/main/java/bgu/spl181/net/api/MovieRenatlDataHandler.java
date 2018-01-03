@@ -2,7 +2,7 @@ package bgu.spl181.net.api;
 
 import java.util.List;
 
-public interface MovieRenatlDataHandler {
+public interface MovieRenatlDataHandler extends DataHandler{
 
     /**
      * @param name of user

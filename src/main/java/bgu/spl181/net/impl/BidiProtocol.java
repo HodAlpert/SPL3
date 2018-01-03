@@ -12,7 +12,7 @@ public abstract class BidiProtocol<T> implements BidiMessagingProtocol<T>{
     private int connectionId;
     private String userName;
     private AtomicBoolean terminate;
-    private DataHandler service;
+    protected DataHandler service;
 
     public BidiProtocol() {
         this.terminate = new AtomicBoolean(false);
@@ -45,25 +45,14 @@ public abstract class BidiProtocol<T> implements BidiMessagingProtocol<T>{
         else if(message.equals("SIGNOUT"))
             signout(); //disconnected after signout
     }
-    private void register(String [] input){
-        if (input.length == 4) {
-            if (!service.registerUser(input[1], input[2], input[3]))
-                error("registration failed");
-            else
-                ack("registration succeeded");
-        }
-        else{
-            if (!service.registerUser(input[1], input[2], null))
-                error("registration failed");
-            else
-                ack("registration succeeded");
-        }
-    }
 
-    private void error(String message){
+
+    protected void error(String message){
         connections.send(this.connectionId,"ERROR "+message);
     }
+
     protected abstract void request(String[] input);
+    protected abstract void register(String [] input);
 
     private void signout(){
         if(userName==null) // if not logged in
@@ -84,7 +73,7 @@ public abstract class BidiProtocol<T> implements BidiMessagingProtocol<T>{
             ack("login succeeded");
         }
     }
-    private void ack(String message){
+    protected void ack(String message){
         connections.send(this.connectionId,"ACK "+message);
     }
 

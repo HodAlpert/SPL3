@@ -31,12 +31,17 @@ public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
 
     @Override
     public void process(T message) {
-        System.out.println("Client"+ connectionId+ "> "+message);
+        if(user!=null)
+            System.out.println(user.getUsername()+ "> "+message);
+        else
+            System.out.println("Guest"+ connectionId+ "> "+message);
         String [] input=splitMessage(message);
         if(input[0].equals("REGISTER"))
             register(input);
         else if(input[0].equals("LOGIN"))
             login(input);
+        else if(input[0].equals("REQUEST"))
+            request(input);
         else if(message.equals("SIGNOUT"))
             signout(); //disconnected after signout
     }
@@ -58,8 +63,12 @@ public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
     private void error(String message){
         connections.send(this.connectionId,"ERROR "+message);
     }
+    private void request(String[] input){
+        if(user==null || !service.proccessRequest(input,user,connections,connectionId))
+            error("request " +input[1]+" failed");
+    }
     private void signout(){
-        if(user==null)
+        if(user==null) // if not logged in
             error("signout failed");
         else{
             user=null;

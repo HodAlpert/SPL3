@@ -6,7 +6,14 @@ public class MovieRentalService {
     private ArrayList<User> users;
     private ArrayList<Movie> movies;
 
-    public MovieRentalService() {
+    private static class MovieRentalServiceHolder {
+        private static MovieRentalService instance = new MovieRentalService();
+    }
+    public static MovieRentalService getInstance(){
+        return MovieRentalServiceHolder.instance;
+    }
+
+    private MovieRentalService() {
         users = new ArrayList<>();
         movies  = new ArrayList<>();
     }

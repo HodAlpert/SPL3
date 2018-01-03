@@ -8,12 +8,12 @@ import bgu.spl181.net.srv.BlockingConnectionHandler;
 
 import java.util.function.Supplier;
 
-public class MovieRentalTPCServer<T> extends BaseServer<T> {
+public class MovieRentalTPCServer extends BaseServer<String> {
     private MovieRentalService service;
 
-    public MovieRentalTPCServer(int port, Supplier<BidiMessagingProtocol<T>> protocolFactory, Supplier<MessageEncoderDecoder<T>> encdecFactory) {
+    public MovieRentalTPCServer(int port, Supplier<BidiMessagingProtocol<String>> protocolFactory, Supplier<MessageEncoderDecoder<String>> encdecFactory) {
         super(port, protocolFactory, encdecFactory);
-        service = new MovieRentalService();
+        service = MovieRentalService.getInstance();
     }
 
     @Override

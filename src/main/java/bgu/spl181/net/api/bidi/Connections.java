@@ -14,8 +14,6 @@ public interface Connections<T> {
 
     void disconnect(int connectionId);
 
-    List<User> getConnectedUsers();
-
     User getConnectedUser(String userName);
 
     /**

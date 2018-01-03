@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
     private Connections connections;
     private int connectionId;
-    private User user;
+    private String userName;
     private AtomicBoolean terminate;
     private DataHandler service;
 
@@ -31,8 +31,8 @@ public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
 
     @Override
     public void process(T message) {
-        if(user!=null)
-            System.out.println(user.getUsername()+ "> "+message);
+        if(userName!=null)
+            System.out.println(userName+ "> "+message);
         else
             System.out.println("Guest"+ connectionId+ "> "+message);
         String [] input=splitMessage(message);
@@ -64,27 +64,27 @@ public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
         connections.send(this.connectionId,"ERROR "+message);
     }
     private void request(String[] input){
-        if(user==null || !service.proccessRequest(input,user,connections,connectionId))
+        if(userName==null || !service.proccessRequest(input,userName,connections,connectionId))
             error("request " +input[1]+" failed");
     }
     private void signout(){
-        if(user==null) // if not logged in
+        if(userName==null) // if not logged in
             error("signout failed");
         else{
-            user=null;
+            userName=null;
             ack("signout succeeded");
             connections.disconnect(this.connectionId);
         }
     }
     private void login(String [] input){
-        if(user!=null||!service.loginValidation(input[1],input[2])) // cant login if already logged in
+        if(userName!=null||!service.loginValidation(input[1],input[2])) // cant login if already logged in
             error("login failed");
         else{
-            User user = connections.getConnectedUser(input[1]);
+            String user = service.getConnectedUser(input[1]);
             if(!connections.getConnectedUsers().contains(user)) {
                 connections.connect(this.connectionId); //connection to the server
                 connections.getConnectedUsers().add(service.getUser(input[1]));
-                this.user=user; // connection as a user to the server
+                this.userName=user; // connection as a user to the server
                 ack("login succeeded");
             }
             else

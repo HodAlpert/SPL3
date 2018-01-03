@@ -10,11 +10,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerConnections<T> implements Connections<T> {
     private ConcurrentHashMap<Integer,ClientForConnections> map;
-    private List<User> connectedUsers;
 
     public ServerConnections() {
         this.map = new ConcurrentHashMap<>();
-        this.connectedUsers = new LinkedList<>();
     }
 
     @Override
@@ -45,18 +43,13 @@ public class ServerConnections<T> implements Connections<T> {
         map.remove(connectionId);//TODO make sure connection handler closes itself
     }
 
-    @Override
-    public List<User> getConnectedUsers() {
-        return this.connectedUsers;
-    }
-
-    @Override
-    public User getConnectedUser(String userName) {
-        for(int i=0;i<this.connectedUsers.size();i++)
-            if(this.connectedUsers.get(i).getUsername()==userName)
-                return this.connectedUsers.get(i);
-        return null;
-    }
+//    @Override
+//    public User getConnectedUser(String userName) {
+//        for(int i=0;i<this.connectedUsers.size();i++)
+//            if(this.connectedUsers.get(i).getUsername()==userName)
+//                return this.connectedUsers.get(i);
+//        return null;
+//    }
 
 
     public void activate(int connectionId,ConnectionHandler handler){

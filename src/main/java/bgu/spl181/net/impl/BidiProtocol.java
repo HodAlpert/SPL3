@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
     private Connections connections;
     private int connectionId;
+    private User user;
     private AtomicBoolean terminate;
     private DataHandler service;
 
@@ -18,9 +19,10 @@ public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
     }
 
     @Override
-    public void start(int connectionId, Connections<T> connections, ConnectionHandler<T> handler) {
+    public void start(int connectionId, Connections<T> connections, ConnectionHandler<T> handler, DataHandler service) {
         this.connectionId = connectionId;
         this.connections = connections;
+        this.service = service;
         connections.activate(connectionId,handler);
         System.out.println("Client "+ connectionId+ ": connected");
 
@@ -29,33 +31,60 @@ public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
 
     @Override
     public void process(T message) {
-        DataHandler service = MovieRentalService.getInstance();
-//        service.registerUser("hod","246315", "israel");
-        System.out.println("Client "+ connectionId+ ":"+message);
-        connections.send(this.connectionId,message);
         System.out.println("Client"+ connectionId+ "> "+message);
-        //connections.send(this.connectionId,message);
         String [] input=splitMessage(message);
-        if(input[0].equals("REGISTER")){
-            if(service.registerUser(input[1],input[2],input[3]))
-
-            error("registration failed");
+        if(input[0].equals("REGISTER"))
+            register(input);
+        else if(input[0].equals("LOGIN"))
+            login(input);
+        else if(message.equals("SIGNOUT"))
+            signout(); //disconnected after signout
+    }
+    private void register(String [] input){
+        if (input.length == 3) {
+            if (!service.registerUser(input[1], input[2], input[3]))
+                error("registration failed");
+            else
+                ack("registration succeeded");
         }
-        if (message.equals("bye")){
-            connections.disconnect(connectionId);
-            System.out.println("Client "+ connectionId+ "> disconnected");
+        else{
+            if (!service.registerUser(input[1], input[2], null))
+                error("registration failed");
+            else
+                ack("registration succeeded");
         }
     }
+
     private void error(String message){
         connections.send(this.connectionId,"ERROR "+message);
     }
+    private void signout(){
+        if(user==null)
+            error("signout failed");
+        else{
+            user=null;
+            ack("signout succeeded");
+            connections.disconnect(this.connectionId);
+        }
+    }
     private void login(String [] input){
-
+        if(user!=null||!service.loginValidation(input[1],input[2])) // cant login if already logged in
+            error("login failed");
+        else{
+            User user = connections.getConnectedUser(input[1]);
+            if(!connections.getConnectedUsers().contains(user)) {
+                connections.connect(this.connectionId); //connection to the server
+                connections.getConnectedUsers().add(service.getUser(input[1]));
+                this.user=user; // connection as a user to the server
+                ack("login succeeded");
+            }
+            else
+                error("login failed");
+        }
     }
-    private void ack(String [] input){
-
+    private void ack(String message){
+        connections.send(this.connectionId,"ACK "+message);
     }
-
 
     @Override
     public boolean shouldTerminate() {

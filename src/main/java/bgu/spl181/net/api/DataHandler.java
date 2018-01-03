@@ -1,5 +1,7 @@
 package bgu.spl181.net.api;
 
+import bgu.spl181.net.impl.User;
+
 public interface DataHandler {
     /**
      * @param name of user
@@ -16,4 +18,12 @@ public interface DataHandler {
      * @return false if Username and Password combination does not fit any user in the system, else: true
      */
     public boolean loginValidation(String name, String password);
+
+    /**
+     *
+     * @param name user's name
+     * @return the user if exists, else return null
+     */
+    public User getUser(String name);
+
 }

@@ -1,8 +1,10 @@
 package bgu.spl181.net.api.bidi;
 
+import bgu.spl181.net.impl.User;
 import bgu.spl181.net.srv.ConnectionHandler;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface Connections<T> {
 
@@ -11,6 +13,10 @@ public interface Connections<T> {
     void broadcast(T msg);
 
     void disconnect(int connectionId);
+
+    List<User> getConnectedUsers();
+
+    User getConnectedUser(String userName);
 
     /**
      * @param connectionId num of user

@@ -5,7 +5,7 @@ import bgu.spl181.net.impl.echo.LineMessageEncoderDecoder;
 
 public class TPCMain {
     public static void main(String[] args) {
-        MovieRentalTPCServer<String> server = new MovieRentalTPCServer<>(
+        MovieRentalTPCServer server = new MovieRentalTPCServer(
                 Integer.parseInt(args[0]),
                 BidiProtocol::new,
                 LineMessageEncoderDecoder::new);

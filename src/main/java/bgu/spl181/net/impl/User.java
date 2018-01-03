@@ -1,13 +1,12 @@
 package bgu.spl181.net.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class User {
     private String username;
     private String type;
     private String country;
-    private HashMap<String,String> movies;
+    private ArrayList<MovieInUser> movies;
     private int balance;
 
     public User(String username, String type, String country, int balance) {
@@ -15,7 +14,7 @@ public class User {
         this.type = type;
         this.country = country;
         this.balance = balance;
-        this.movies = new HashMap<>();
+        this.movies = new ArrayList<>();
     }
 
     public String getUsername() {
@@ -42,7 +41,7 @@ public class User {
         this.country = country;
     }
 
-    public HashMap<String,String> getMovies() {
+    public ArrayList<MovieInUser> getMovies() {
         return movies;
     }
 
@@ -57,11 +56,12 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "username='" + username + '\'' +
-                ", type='" + type + '\'' +
-                ", country='" + country + '\'' +
-                ", movies=" + movies +
-                ", balance=" + balance +
+                "username='" + username + '\n' +
+                ", type='" + type + '\n' +
+                ", country='" + country + '\n' +
+                ", movies=" + movies +'\n' +
+                ", balance=" + balance +'\n' +
                 '}';
     }
 }
+

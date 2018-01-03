@@ -43,15 +43,6 @@ public class ServerConnections<T> implements Connections<T> {
         map.remove(connectionId);//TODO make sure connection handler closes itself
     }
 
-//    @Override
-//    public User getConnectedUser(String userName) {
-//        for(int i=0;i<this.connectedUsers.size();i++)
-//            if(this.connectedUsers.get(i).getUsername()==userName)
-//                return this.connectedUsers.get(i);
-//        return null;
-//    }
-
-
     public void activate(int connectionId,ConnectionHandler handler){
         ClientForConnections client = new ClientForConnections(connectionId,handler);
         map.putIfAbsent(connectionId,client);

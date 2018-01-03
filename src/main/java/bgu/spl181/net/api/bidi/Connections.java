@@ -14,8 +14,6 @@ public interface Connections<T> {
 
     void disconnect(int connectionId);
 
-    User getConnectedUser(String userName);
-
     /**
      * @param connectionId num of user
      * @param handler connection handler of the user

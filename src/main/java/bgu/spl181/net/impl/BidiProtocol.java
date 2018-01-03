@@ -7,7 +7,7 @@ import bgu.spl181.net.srv.ConnectionHandler;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
+public abstract class BidiProtocol<T> implements BidiMessagingProtocol<T>{
     private Connections connections;
     private int connectionId;
     private String userName;
@@ -63,10 +63,8 @@ public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
     private void error(String message){
         connections.send(this.connectionId,"ERROR "+message);
     }
-    private void request(String[] input){
-        if(userName==null || !service.proccessRequest(input,userName,connections,connectionId))
-            error("request " +input[1]+" failed");
-    }
+    protected abstract void request(String[] input);
+
     private void signout(){
         if(userName==null) // if not logged in
             error("signout failed");
@@ -80,15 +78,10 @@ public class BidiProtocol<T> implements BidiMessagingProtocol<T>{
         if(userName!=null||!service.loginValidation(input[1],input[2])) // cant login if already logged in
             error("login failed");
         else{
-            String user = service.getConnectedUser(input[1]);
-            if(!connections.getConnectedUsers().contains(user)) {
-                connections.connect(this.connectionId); //connection to the server
-                connections.getConnectedUsers().add(service.getUser(input[1]));
-                this.userName=user; // connection as a user to the server
-                ack("login succeeded");
-            }
-            else
-                error("login failed");
+            connections.connect(this.connectionId); //connection to the server
+            service.getConnectedUsers().add(input[1]);
+            this.userName=input[1]; // connection as a user to the server
+            ack("login succeeded");
         }
     }
     private void ack(String message){

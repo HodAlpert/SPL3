@@ -13,7 +13,7 @@ public class ClientForConnections {
 
     public ClientForConnections(int id, ConnectionHandler handler){
         this.id=id;
-        this.isLoggedIn = new AtomicBoolean(false);
+        isLoggedIn = new AtomicBoolean(false);
         this.handler=handler;
     }
     public int getId() {
@@ -23,7 +23,7 @@ public class ClientForConnections {
     public ConnectionHandler getHandler() {
         return handler;
     }
-    public boolean isLogedin(){
+    public boolean isLoggedin(){
         return isLoggedIn.get();
     }
     public void setIsLoggedIn(boolean value){

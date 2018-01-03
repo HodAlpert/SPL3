@@ -20,6 +20,10 @@ public class User implements Serializable{
         this.movies = new ArrayList<>();
     }
 
+    public String getPassword() {
+        return password;
+    }
+
     public String getUsername() {
         return username;
     }

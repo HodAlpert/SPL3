@@ -1,10 +1,6 @@
 package bgu.spl181.net.api.bidi;
 
-import bgu.spl181.net.impl.User;
 import bgu.spl181.net.srv.ConnectionHandler;
-
-import java.io.IOException;
-import java.util.List;
 
 public interface Connections<T> {
 

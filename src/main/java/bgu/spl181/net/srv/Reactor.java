@@ -1,6 +1,5 @@
 package bgu.spl181.net.srv;
 
-import bgu.spl181.net.api.DataHandler;
 import bgu.spl181.net.api.MessageEncoderDecoder;
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl181.net.api.bidi.Connections;
@@ -24,7 +23,6 @@ public class Reactor<T> implements Server<T> {
     private final Supplier<MessageEncoderDecoder<T>> readerFactory;
     private final ActorThreadPool pool;
     private Selector selector;
-    private DataHandler service;
 
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
@@ -35,15 +33,13 @@ public class Reactor<T> implements Server<T> {
             int numThreads,
             int port,
             Supplier<BidiMessagingProtocol<T>> protocolFactory,
-            Supplier<MessageEncoderDecoder<T>> readerFactory,
-            DataHandler service){
+            Supplier<MessageEncoderDecoder<T>> readerFactory) {
 
         this.pool = new ActorThreadPool(numThreads);
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.readerFactory = readerFactory;
         connections = new ServerConnections();
-        this.service=service;
     }
 
     @Override
@@ -121,7 +117,7 @@ public class Reactor<T> implements Server<T> {
                 protocol,
                 clientChan,
                 this);//needs the reactor to change READ to WRIte etc..
-        protocol.start(connectionId,connections,handler, service);
+        protocol.start(connectionId,connections,handler);
         clientChan.register(selector, SelectionKey.OP_READ, handler);//registering the clientChannel with READ
     }
 

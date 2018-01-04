@@ -1,6 +1,6 @@
 package bgu.spl181.net.api;
 
-public interface DataHandler<T> {
+public interface DataHandler {
     /**
      * @param name of user
      * @param password of user

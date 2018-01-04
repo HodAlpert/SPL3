@@ -1,6 +1,5 @@
 package bgu.spl181.net.srv;
 
-import bgu.spl181.net.api.DataHandler;
 import bgu.spl181.net.api.MessageEncoderDecoder;
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl181.net.api.bidi.Connections;
@@ -8,11 +7,7 @@ import bgu.spl181.net.impl.ServerConnections;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.ClosedSelectorException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -29,21 +24,18 @@ public class Reactor<T> implements Server<T> {
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
     private Connections connections;
     private AtomicInteger counter = new AtomicInteger(0);
-    private DataHandler service;
 
     public Reactor(
             int numThreads,
             int port,
             Supplier<BidiMessagingProtocol<T>> protocolFactory,
-            Supplier<MessageEncoderDecoder<T>> readerFactory,
-            DataHandler service) {
+            Supplier<MessageEncoderDecoder<T>> readerFactory) {
 
         this.pool = new ActorThreadPool(numThreads);
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.readerFactory = readerFactory;
         connections = new ServerConnections();
-        this.service=service;
     }
 
     @Override
@@ -121,7 +113,7 @@ public class Reactor<T> implements Server<T> {
                 protocol,
                 clientChan,
                 this);//needs the reactor to change READ to WRIte etc..
-        protocol.start(connectionId,connections,handler,service);
+        protocol.start(connectionId,connections,handler);
         clientChan.register(selector, SelectionKey.OP_READ, handler);//registering the clientChannel with READ
     }
 

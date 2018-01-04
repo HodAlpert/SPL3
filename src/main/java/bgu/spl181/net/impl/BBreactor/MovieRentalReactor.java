@@ -11,7 +11,6 @@ public class MovieRentalReactor extends Reactor<String> {
     private MovieRentalService service;
     public MovieRentalReactor(int numThreads, int port, Supplier<BidiMessagingProtocol<String>> protocolFactory, Supplier<MessageEncoderDecoder<String>> readerFactory) {
         super(numThreads, port, protocolFactory, readerFactory);
-         service = MovieRentalService.getInstance();
     }
 
 

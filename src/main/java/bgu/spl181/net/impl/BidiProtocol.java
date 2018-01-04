@@ -14,15 +14,15 @@ public abstract class BidiProtocol<T> implements BidiMessagingProtocol<T>{
     private AtomicBoolean terminate;
     protected DataHandler service;
 
-    public BidiProtocol() {
+    public BidiProtocol(DataHandler service) {
         this.terminate = new AtomicBoolean(false);
+        this.service = service;
     }
 
     @Override
-    public void start(int connectionId, Connections<T> connections, ConnectionHandler<T> handler, DataHandler service) {
+    public void start(int connectionId, Connections<T> connections, ConnectionHandler<T> handler) {
         this.connectionId = connectionId;
         this.connections = connections;
-        this.service = service;
         connections.activate(connectionId,handler);
         System.out.println("Client "+ connectionId+ ": connected");
 

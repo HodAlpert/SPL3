@@ -1,6 +1,12 @@
 package bgu.spl181.net.impl;
 
+import bgu.spl181.net.api.DataHandler;
+
 public class MovieRentalProtocol extends BidiProtocol{
+
+    public MovieRentalProtocol(DataHandler service) {
+        super(service);
+    }
 
     @Override
     protected void request(String[] input) {

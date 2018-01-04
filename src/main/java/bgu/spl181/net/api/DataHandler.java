@@ -22,4 +22,11 @@ public interface DataHandler {
      * else return false
      */
     boolean isLoggedIn(String name);
+
+    /**
+     * @param userName to sign out
+     * @return true if user was in and removes him
+     * else: false
+     */
+    boolean signOut(String userName);
 }

@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class BidiProtocol<T> implements BidiMessagingProtocol<T>{
     private Connections connections;
     private int connectionId;
-    private String userName;
+    protected String userName;
     private AtomicBoolean terminate;
     protected DataHandler service;
 
@@ -58,6 +58,7 @@ public abstract class BidiProtocol<T> implements BidiMessagingProtocol<T>{
         if(userName==null) // if not logged in
             error("signout failed");
         else{
+            service.signOut(userName);
             userName=null;
             ack("signout succeeded");
             connections.disconnect(this.connectionId);
@@ -68,7 +69,6 @@ public abstract class BidiProtocol<T> implements BidiMessagingProtocol<T>{
             error("login failed");
         else{
             connections.connect(this.connectionId); //connection to the server
-            service.getConnectedUsers().add(input[1]);
             this.userName=input[1]; // connection as a user to the server
             ack("login succeeded");
         }

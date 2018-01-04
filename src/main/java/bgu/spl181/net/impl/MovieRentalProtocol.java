@@ -4,6 +4,14 @@ public class MovieRentalProtocol extends BidiProtocol{
 
     @Override
     protected void request(String[] input) {
+        if(userName==null) // if not logged in
+            error("request "+input[1]+" failed");
+        MovieRentalService MRS = (MovieRentalService)service;
+        if(input.length==3&&input[1].equals("balance")&&input[2].equals("info"))
+            ack("balance "+MRS.userBalanceInfo(userName));
+        if(input.length==4&&input[1].equals("balance")&&input[2].equals("add")){
+
+        }
 
     }
 

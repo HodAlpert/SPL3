@@ -113,10 +113,11 @@ public class MovieRentalService implements DataHandler {
      * @param amount to be added to the user
      *               adds the amount to user balance
      */
-    public void userAddBalance(String userName, int amount) {
+    public int userAddBalance(String userName, int amount) {
         synchronized (usersLock){
             users.get(userName).setBalance(users.get(userName).getBalance()+amount);
             refreshUsers();
+            return users.get(userName).getBalance();
         }
     }
 
@@ -125,6 +126,7 @@ public class MovieRentalService implements DataHandler {
      * @return true if user was in {@link #loggedInUsers} and removes him
      * else: false
      */
+    @Override
     public boolean signOut(String userName){
         synchronized (usersLock) {
             if (loggedInUsers.contains(userName)) {

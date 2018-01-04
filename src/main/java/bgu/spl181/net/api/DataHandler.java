@@ -1,7 +1,5 @@
 package bgu.spl181.net.api;
 
-import java.util.List;
-
 public interface DataHandler {
     /**
      * @param name of user
@@ -18,9 +16,10 @@ public interface DataHandler {
      * @return false if Username and Password combination does not fit any user in the system, else: true
      */
     boolean loginValidation(String name, String password);
-
-
-
-    List<String> getConnectedUsers();
-
+    /**
+     * @param name to check if logged in
+     * @return true if user is in loggedInList
+     * else return false
+     */
+    boolean isLoggedIn(String name);
 }

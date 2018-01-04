@@ -118,6 +118,20 @@ public class MovieRentalService implements DataHandler {
     }
 
     /**
+     * @param userName to sign out
+     * @return true if user was in {@link #loggedInUsers} and removes him
+     * else: false
+     */
+    public boolean signOut(String userName){
+        if (loggedInUsers.contains(userName)){
+            loggedInUsers.remove(userName);
+            return true;
+        }
+        else
+            return false;
+    }
+
+    /**
      * @param movieName to return info of, if null- returns a list of all movies names
      * @return if (movieName==null)
      * if (movie is in movie's list) return:

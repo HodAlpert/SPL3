@@ -6,30 +6,31 @@ import com.google.gson.Gson;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MovieRentalService implements DataHandler {
-    private HashMap<String,User> users;
-    private HashMap<String,Movie> movies;
+    private ConcurrentHashMap<String,User> users;
+    private ConcurrentHashMap<String,Movie> movies;
     private UsersList userslist;
     private MoviesList movielist;
     private final ReentrantReadWriteLock usersLock = new ReentrantReadWriteLock(true);
     private final ReentrantReadWriteLock movieLock = new ReentrantReadWriteLock(true);
-    private int highestId;
-    private List<String> loggedInUsers;
+    private AtomicInteger highestId;
+    private CopyOnWriteArrayList<String> loggedInUsers;
 
     public MovieRentalService() {
-        users = new HashMap<>();
-        movies  = new HashMap<>();
+        users = new ConcurrentHashMap<>();
+        movies  = new ConcurrentHashMap<>();
         Gson UsersGson = new Gson();
         Gson MoviesGson = new Gson();
         movielist= new MoviesList();
         userslist= new UsersList();
-        highestId=0;
-        loggedInUsers = new ArrayList<String>();
+        highestId=new AtomicInteger(0);
+        loggedInUsers = new CopyOnWriteArrayList<>();
         try {
             userslist = UsersGson.fromJson(new FileReader("Database/Users.json"), UsersList.class);
             movielist = MoviesGson.fromJson(new FileReader("Database/Movies.json"), MoviesList.class);
@@ -42,8 +43,8 @@ public class MovieRentalService implements DataHandler {
         }
         for(Movie movie: movielist.getMovies()){
             movies.put(movie.getName(), movie);
-            if (highestId<Integer.decode(movie.getId()))
-                highestId=Integer.decode(movie.getId());
+            if (highestId.get()<Integer.decode(movie.getId()))
+                highestId.set(Integer.decode(movie.getId()));
         }
         System.out.println(this);
     }
@@ -57,16 +58,16 @@ public class MovieRentalService implements DataHandler {
      */
     @Override
     public boolean registerUser(String name, String password, String country) {
+        if (isUserExist(name))
+            return false;
         usersLock.writeLock().lock();
         try {
-            if (users.containsKey(name))
-                return false;
             User user = new User(name, password, country);
             users.put(name, user);
             userslist.addUser(user);
             refreshUsers();
             return true;
-        }
+            }
         finally {
             usersLock.writeLock().unlock();
 
@@ -153,17 +154,17 @@ public class MovieRentalService implements DataHandler {
      */
     @Override
     public boolean signOut(String userName){
-        usersLock.writeLock().lock();
-        try {
-            if (loggedInUsers.contains(userName)) {
+        if (isLoggedIn(userName)) {
+            usersLock.writeLock().lock();
+            try {
                 loggedInUsers.remove(userName);
-                return true;
-            } else
-                return false;
-        }
-        finally {
-            usersLock.writeLock().unlock();
-        }
+            }
+            finally {
+                usersLock.writeLock().unlock();
+            }
+            return true;
+        } else
+            return false;
     }
 
     /**
@@ -221,41 +222,29 @@ public class MovieRentalService implements DataHandler {
      * true
      */
     public boolean rentMovie(String userName, String movieName) {
-        usersLock.writeLock().lock();
-        movieLock.writeLock().lock();
-        try {
-            boolean userExist, movieExist, availableForRent, notBannedInCountry, userBalanceEnugh, userNotRentingMovie;
-            userExist = users.containsKey(userName);
-            movieExist = movies.containsKey(movieName);
-            if (userExist & movieExist) {
+        if (isUserExist(userName) & isMovieExist(movieName) & userCanRentMovie(userName, movieName)) {
+            usersLock.writeLock().lock();
+            movieLock.writeLock().lock();
+            try {
                 Movie movie = movies.get(movieName);
                 User user = users.get(userName);
-                availableForRent = movie.getAvailableAmount() > 0;
-                notBannedInCountry = !(movie.getBannedCountries().contains(user.getCountry()));
-                userBalanceEnugh = user.getBalance() >= movie.getPrice();
-                userNotRentingMovie = userNotRentingMovie(user, movie);
-                if (availableForRent & notBannedInCountry & userBalanceEnugh & userNotRentingMovie) {
-                    MovieInUser forRent = new MovieInUser(movie.getId(), movieName);
-                    //adding the movieName to the userName rented movieName list
-                    user.getMovies().add(forRent);
-                    //remove the cost from the userName’s balance
-                    user.setBalance(user.getBalance() - movie.getPrice());
-                    //reduce the amount available for rent by 1
-                    movie.setAvailableAmount(movie.getAvailableAmount() - 1);
-                    refreshUsers();
-                    refreshMovies();
-
-                    return true;
-                } else
-                    return false;
-            } else
-                return false;
+                MovieInUser forRent = new MovieInUser(movie.getId(), movieName);
+                //adding the movieName to the userName rented movieName list
+                user.getMovies().add(forRent);
+                //remove the cost from the userName’s balance
+                user.setBalance(user.getBalance() - movie.getPrice());
+                //reduce the amount available for rent by 1
+                movie.setAvailableAmount(movie.getAvailableAmount() - 1);
+                refreshUsers();
+                refreshMovies();
+                return true;
+            } finally {
+                usersLock.writeLock().unlock();
+                movieLock.writeLock().unlock();
+            }
         }
-        finally {
-            usersLock.writeLock().unlock();
-            movieLock.writeLock().unlock();
-        }
-}
+        return false;
+    }
 
     /**
      * @param movieName  who wants to rent the movie
@@ -267,38 +256,34 @@ public class MovieRentalService implements DataHandler {
      * 2. The movie does not exist
      */
     public boolean returnMovie(String userName, String movieName) {
-        movieLock.writeLock().lock();
-        usersLock.writeLock().lock();
-        try {
-            boolean userRentingMovie, movieExist, userExist;
-            movieExist = movies.containsKey(movieName);
-            userExist = users.containsKey(userName);
-            if (movieExist & userExist) {
+        if (isUserExist(userName)&isMovieExist(movieName)&!userNotRentingMovie(userName,movieName)){
+            movieLock.writeLock().lock();
+            usersLock.writeLock().lock();
+            try{
                 Movie movie = movies.get(movieName);
                 User user = users.get(userName);
-                userRentingMovie = !userNotRentingMovie(user, movie);
-                if (userRentingMovie) {
-                    //remove the movie from the user rented movie list
-                    for (MovieInUser toRemove : user.getMovies()) {
-                        if (toRemove.getName().equals(movie.getName())) {
-                            user.getMovies().remove(toRemove);
-                            break;
-                        }
+                //remove the movie from the user rented movie list
+                for (MovieInUser toRemove : user.getMovies()) {
+                    if (toRemove.getName().equals(movie.getName())) {
+                        user.getMovies().remove(toRemove);
+                        break;
                     }
-                    //increase the amount of available copies of the movies by 1
-                    movie.setAvailableAmount(movie.getAvailableAmount() + 1);
-                    refreshMovies();
-                    refreshUsers();
-                    return true;
                 }
+                //increase the amount of available copies of the movies by 1
+                movie.setAvailableAmount(movie.getAvailableAmount() + 1);
+                refreshMovies();
+                refreshUsers();
+                return true;
             }
-            return false;
+            finally {
+                movieLock.writeLock().unlock();
+                usersLock.writeLock().unlock();
+            }
+
         }
-        finally {
-            movieLock.writeLock().unlock();
-            usersLock.writeLock().unlock();
-        }
+        return false;
     }
+
 
     /**
      * @param movieName       name of movie
@@ -313,6 +298,22 @@ public class MovieRentalService implements DataHandler {
      * 3. Price or Amount are smaller than or equal to 0 (there are no free movies)
      */
     public boolean addMovie(String userName, String movieName, int totalAmount, int price, List<String> bannedCountries) {
+
+        boolean priceAndAmountOK;
+        priceAndAmountOK = totalAmount>0&price>0;
+        if(!isMovieExist(movieName)&isUserAdmin(userName)&priceAndAmountOK){
+            movieLock.writeLock().lock();
+            try{
+                Movie newMovie = new Movie(String.valueOf(highestId.get()),movieName,price,totalAmount,bannedCountries);
+                movies.put(movieName,newMovie);
+                movielist.getMovies().add(newMovie);
+                refreshMovies();
+                return true;
+            }
+            finally {
+                movieLock.writeLock().unlock();
+            }
+        }
         return false;
     }
 
@@ -324,7 +325,19 @@ public class MovieRentalService implements DataHandler {
      * 2. Movie does not exist in the system
      * 3. There is (at least one) a copy of the movie that is currently rented by a user
      */
-    public boolean removeMovie(String movieName) {
+    public boolean removeMovie(String userName, String movieName) {
+        if (isUserAdmin(userName)&!isMovieExist(movieName)&userNotRentingMovie(userName,movieName)){//checks condition Number 1
+            movieLock.writeLock().lock();
+            try{
+                movielist.getMovies().remove(movies.get(movieName));
+                movies.remove(movieName);
+                refreshMovies();
+                return true;
+            }
+            finally {
+                movieLock.writeLock().unlock();
+            }
+        }
         return false;
     }
 
@@ -337,7 +350,17 @@ public class MovieRentalService implements DataHandler {
      * 2. Movie does not exist in the system
      * 3. Price is smaller than or equal to 0
      */
-    public boolean ChangeMoviePrice(String movieName, int price) {
+    public boolean ChangeMoviePrice(String userName, String movieName, int price) {
+        if(isUserAdmin(userName) & isMovieExist(movieName)& price>0) {
+            movieLock.writeLock().lock();
+            try {
+                movies.get(movieName).setPrice(price);
+                refreshMovies();
+                return true;
+            } finally {
+                movieLock.writeLock().unlock();
+            }
+        }
         return false;
     }
 
@@ -372,11 +395,75 @@ public class MovieRentalService implements DataHandler {
         }
 
     }
-    private boolean userNotRentingMovie(User user, Movie movie){
-        for (MovieInUser movie1:user.getMovies()){
-            if(movie1.getName().equals(movie.getName()))
-                return false;
+    private boolean userNotRentingMovie(String userName, String movieName){
+        Movie movie = movies.get(movieName);
+        User user = users.get(userName);
+        usersLock.readLock().lock();
+        movieLock.readLock().lock();
+        try {
+            for (MovieInUser movie1 : user.getMovies()) {
+                if (movie1.getName().equals(movie.getName()))
+                    return false;
+            }
+            return true;
         }
-        return true;
+        finally {
+                usersLock.readLock().unlock();
+                movieLock.readLock().unlock();
+            }
+    }
+    private boolean isUserAdmin(String userName){
+        usersLock.readLock().lock();
+        try{
+            return users.get(userName).getType().equals("admin");
+        }
+        finally {
+            usersLock.readLock().unlock();
+        }
+    }
+
+    private boolean isMovieExist(String movieName){
+        movieLock.readLock().unlock();
+        try{
+            return movies.containsKey(movieName);
+        }
+        finally {
+            movieLock.readLock().unlock();
+        }
+    }
+    private boolean isUserExist(String userName){
+        usersLock.readLock().lock();
+        try{
+            return users.containsKey(userName);
+        }
+        finally {
+            usersLock.readLock().unlock();
+        }
+    }
+    private boolean availableForRent(String movie){
+        movieLock.readLock().unlock();
+        try{
+            return movies.get(movie).getAvailableAmount() > 0;
+        }
+        finally {
+            movieLock.readLock().unlock();
+        }
+    }
+    private boolean userCanRentMovie(String userName, String movieName){
+        usersLock.readLock().lock();
+        movieLock.readLock().lock();
+        try{
+            Movie movie = movies.get(movieName);
+            User user = users.get(userName);
+            boolean notBannedInCountry, userBalanceEnugh, userNotRentingMovie;
+            notBannedInCountry = !(movie.getBannedCountries().contains(user.getCountry()));
+            userBalanceEnugh = user.getBalance() >= movie.getPrice();
+            userNotRentingMovie = userNotRentingMovie(userName, movieName);
+            return notBannedInCountry & userBalanceEnugh & userNotRentingMovie;
+        }
+        finally {
+            usersLock.readLock().unlock();
+            movieLock.readLock().unlock();
+        }
     }
 }

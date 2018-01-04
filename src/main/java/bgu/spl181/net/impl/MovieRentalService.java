@@ -9,12 +9,15 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MovieRentalService implements DataHandler {
     private HashMap<String,User> users;
     private HashMap<String,Movie> movies;
     private UsersList userslist;
     private MoviesList movielist;
+    private final ReentrantLock usersLock = new ReentrantLock();
+    private final ReentrantLock movieLock = new ReentrantLock();
     private int highestId;
     private List<String> loggedInUsers;
 
@@ -54,7 +57,7 @@ public class MovieRentalService implements DataHandler {
      */
     @Override
     public boolean registerUser(String name, String password, String country) {
-        synchronized (users) {
+        synchronized (usersLock) {
             if (users.containsKey(name))
                 return false;
             User user = new User(name, password, country);
@@ -74,7 +77,7 @@ public class MovieRentalService implements DataHandler {
      */
     @Override
     public boolean loginValidation(String name, String password) {
-        synchronized (userslist){
+        synchronized (usersLock){
             if ((!users.containsKey(name))|!users.get(name).getPassword().equals(password))
                 return false;
             else
@@ -90,7 +93,7 @@ public class MovieRentalService implements DataHandler {
      */
     @Override
     public boolean isLoggedIn(String userName) {
-        synchronized (userslist){
+        synchronized (usersLock){
             return loggedInUsers.contains(userName);
         }
     }
@@ -100,7 +103,7 @@ public class MovieRentalService implements DataHandler {
      * @return userBalance
      */
     public Integer userBalanceInfo(String username) {
-        synchronized (userslist){
+        synchronized (usersLock){
             return users.get(username).getBalance();
         }
     }
@@ -111,7 +114,7 @@ public class MovieRentalService implements DataHandler {
      *               adds the amount to user balance
      */
     public void userAddBalance(String userName, int amount) {
-        synchronized (userslist){
+        synchronized (usersLock){
             users.get(userName).setBalance(users.get(userName).getBalance()+amount);
             refreshUsers();
         }
@@ -123,12 +126,13 @@ public class MovieRentalService implements DataHandler {
      * else: false
      */
     public boolean signOut(String userName){
-        if (loggedInUsers.contains(userName)){
-            loggedInUsers.remove(userName);
-            return true;
+        synchronized (usersLock) {
+            if (loggedInUsers.contains(userName)) {
+                loggedInUsers.remove(userName);
+                return true;
+            } else
+                return false;
         }
-        else
-            return false;
     }
 
     /**
@@ -142,56 +146,116 @@ public class MovieRentalService implements DataHandler {
      * return a list of all  movies names
      */
     public String movieInfo(String movieName) {
-        synchronized (movielist){
+        synchronized (movieLock){
             StringBuilder answer = new StringBuilder();
-            if (movieName==null){
+            if (movieName==null){//returns a list of all movies
                 for(Movie movie:movies.values()){
                     if (!answer.toString().equals(""))
                         answer.append('"').append(movie.getName()).append('"');
                     else
                         answer.append(" ").append('"').append(movie.getName()).append('"');
                 }
-                return String.valueOf(answer);
             }
-            else{
+            else if(movies.containsKey(movieName)){//returns details of specific movie in format specified
                 answer.append(movies.get(movieName).getName()).append(" ")
                         .append(movies.get(movieName).getAvailableAmount()).append(" ")
-                        .append(movies.get(movieName).getPrice()).append(" ")
-                        .append(movies.get(movieName).getBannedCountries());//TODO- set format
-                return String.valueOf(answer);
+                        .append(movies.get(movieName).getPrice());
+                for(String country: movies.get(movieName).getBannedCountries()){
+                    answer.append(" ").append('"').append(country).append('"');
+                }
+            }
+            else//if #movieName was not null and it's not exist- returns null
+                return null;
+            return String.valueOf(answer);
+
+        }
+    }
+
+    /**
+     * @param userName  who wants to rent the movieName
+     * @param movieName to be rented
+     *              Server tries to add the movieName to the userName rented movieName list, remove the cost from the
+     *              userName’s balance and reduce the amount available for rent by 1
+     * @return reasons for false:
+     * 1. The userName does not have enough money in their balance
+     * 2. The movieName does not exist in the system
+     * 3. There are no more copies of the movieName that are available for rental
+     * 4. The movieName is banned in the userName’s country
+     * 5. The userName is already renting the movieName
+     * 6. userName not exist in the system
+     * else:
+     * true
+     */
+    public boolean rentMovie(String userName, String movieName) {
+        synchronized (usersLock){
+            synchronized (movieLock){
+                boolean userExist,movieExist,availableForRent,notBannedInCountry,userBalanceEnugh, userNotRentingMovie;
+                userExist=users.containsKey(userName);
+                movieExist = movies.containsKey(movieName);
+                if(userExist&movieExist){
+                    Movie movie = movies.get(movieName);
+                    User user = users.get(userName);
+                    availableForRent = movie.getAvailableAmount()>0;
+                    notBannedInCountry = !(movie.getBannedCountries().contains(user.getCountry()));
+                    userBalanceEnugh = user.getBalance()>=movie.getPrice();
+                    userNotRentingMovie = userNotRentingMovie(user,movie);
+                    if(availableForRent & notBannedInCountry & userBalanceEnugh & userNotRentingMovie) {
+                        MovieInUser forRent = new MovieInUser(movie.getId(), movieName);
+                        //adding the movieName to the userName rented movieName list
+                        user.getMovies().add(forRent);
+                        //remove the cost from the userName’s balance
+                        user.setBalance(user.getBalance() - movie.getPrice());
+                        //reduce the amount available for rent by 1
+                        movie.setAvailableAmount(movie.getAvailableAmount() - 1);
+                        refreshUsers();
+                        refreshMovies();
+                        return true;
+                    }
+                    else
+                        return false;
+                }
+                else
+                    return false;
             }
         }
     }
 
     /**
-     * @param user  who wants to rent the movie
-     * @param movie to be rented
-     *              Server tries to add the movie to the user rented movie list, remove the cost from the
-     *              user’s balance and reduce the amount available for rent by 1
-     * @return reasons for false:
-     * 1. The user does not have enough money in their balance
-     * 2. The movie does not exist in the system
-     * 3. There are no more copies of the movie that are available for rental
-     * 4. The movie is banned in the user’s country
-     * 5. The user is already renting the movie
-     * 6. user not exist in the system
-     * else:
-     * true
-     */
-    public boolean rentMovie(String user, String movie) {
-        return false;
-    }
-
-    /**
-     * @param user  who wants to rent the movie
-     * @param movie to be rented
+     * @param movieName  who wants to rent the movie
+     * @param userName to be rented
      *              Server tries to remove the movie from the user rented movie list and increase the amount
      *              of available copies of the movies by 1
      * @return reasons for false:
      * 1. The user is currently not renting the movie
      * 2. The movie does not exist
      */
-    public boolean returnMovie(String user, String movie) {
+    public boolean returnMovie(String userName, String movieName) {
+        synchronized (usersLock){
+            synchronized (movieLock){
+                boolean userRentingMovie, movieExist, userExist;
+                movieExist = movies.containsKey(movieName);
+                userExist = users.containsKey(userName);
+                if(movieExist & userExist){
+                    Movie movie = movies.get(movieName);
+                    User user = users.get(userName);
+                    userRentingMovie=!userNotRentingMovie(user,movie);
+                    if (userRentingMovie){
+                        //remove the movie from the user rented movie list
+                        for(MovieInUser toRemove: user.getMovies()){
+                            if (toRemove.getName().equals(movie.getName())){
+                                user.getMovies().remove(toRemove);
+                                break;
+                            }
+                        }
+                        //increase the amount of available copies of the movies by 1
+                        movie.setAvailableAmount(movie.getAvailableAmount()+1);
+                        refreshMovies();
+                        refreshUsers();
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
@@ -275,5 +339,12 @@ public class MovieRentalService implements DataHandler {
             e.printStackTrace();
         }
 
+    }
+    private boolean userNotRentingMovie(User user, Movie movie){
+        for (MovieInUser movie1:user.getMovies()){
+            if(movie1.getName().equals(movie.getName()))
+                return false;
+        }
+        return true;
     }
 }

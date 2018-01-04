@@ -8,11 +8,11 @@ public class Movie {
     private int price,availableAmount,totalAmount;
     private List<String> bannedCountries;
 
-    public Movie(String id, String name, int price, int availableAmount, int totalAmount, List<String> bannedCountries) {
+    public Movie(String id, String name, int price, int totalAmount, List<String> bannedCountries) {
         this.id = id;
         this.name = name;
         this.price = price;
-        this.availableAmount = availableAmount;
+        this.availableAmount = totalAmount;
         this.totalAmount = totalAmount;
         this.bannedCountries = bannedCountries;
     }

@@ -4,12 +4,14 @@ public class MovieRentalProtocol extends BidiProtocol{
 
     @Override
     protected void request(String[] input) {
-        if(userName==null) // if not logged in
-            error("request "+input[1]+" failed");
+        if(userName==null) { // if not logged in
+            error("request " + input[1] + " failed");
+            return;
+        }
         MovieRentalService MRS = (MovieRentalService)service;
         if(input.length==3&&input[1].equals("balance")&&input[2].equals("info"))
             ack("balance "+MRS.userBalanceInfo(userName));
-        if(input.length==4&&input[1].equals("balance")&&input[2].equals("add")){
+        else if(input.length==4&&input[1].equals("balance")&&input[2].equals("add")){
             int amount=0;
             try{
                 amount=Integer.parseInt(input[3]);
@@ -20,24 +22,25 @@ public class MovieRentalProtocol extends BidiProtocol{
             }
             ack("balance "+MRS.userAddBalance(userName,amount)+ "added "+input[3]);
         }
-        if(input[1].equals("info")) {
+        else if(input[1].equals("info")) {
             if(input.length==2)
                 ack("info "+MRS.movieInfo(null));
             else{
-                String movieName = "";
+                String output = "";
                 for(int i=2; i<input.length; i++)
-                    movieName+=input[i];
-                String output =MRS.movieInfo(movieName.split("\"")[1]);
-                if(output==null)
+                    output+=input[i];
+                String movieName =MRS.movieInfo(output.split("\"")[1]);
+                if(movieName==null)
                     error("request "+input[1]+" failed");
                 else
-                    ack("info "+output);
+                    ack("info "+movieName);
             }
         }
-        if(input.length>2 && input[1].equals("rent")) {
-            String movieName = "";
+        else if(input.length>2 && input[1].equals("rent")) {
+            String output = "";
             for(int i=2; i<input.length; i++)
-                movieName+=input[i];
+                output+=input[i];
+            String movieName =MRS.movieInfo(output.split("\"")[1]);
             if(MRS.rentMovie(userName,movieName)){
                 ack("rent "+movieName+" success");
                 broadcast("movie "+MRS.movieInfo(movieName));
@@ -45,7 +48,7 @@ public class MovieRentalProtocol extends BidiProtocol{
             else
                 error("request "+input[1]+" failed");
         }
-        if(input.length>2 && input[1].equals("return")) {
+        else if(input.length>2 && input[1].equals("return")) {
             String movieName = "";
             for(int i=2; i<input.length; i++)
                 movieName+=input[i];
@@ -55,6 +58,9 @@ public class MovieRentalProtocol extends BidiProtocol{
             }
             else
                 error("request "+input[1]+" failed");
+        }
+        else if(input.length>4 && input[1].equals("addmovie")){
+
         }
 
     }

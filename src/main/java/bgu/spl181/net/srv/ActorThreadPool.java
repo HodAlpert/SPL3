@@ -11,11 +11,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class ActorThreadPool {
-
-    private final Map<Object, Queue<Runnable>> acts;
+public class ActorThreadPool<T> {
+    private final Map<T, Queue<Runnable>> acts;
     private final ReadWriteLock actsRWLock;
-    private final Set<Object> playingNow;
+    private final Set<T> playingNow;
     private final ExecutorService threads;
 
     public ActorThreadPool(int threads) {
@@ -25,7 +24,7 @@ public class ActorThreadPool {
         actsRWLock = new ReentrantReadWriteLock();
     }
 
-    public void submit(Object act, Runnable r) {
+    public void submit(T act, Runnable r) {
         synchronized (act) {
             if (!playingNow.contains(act)) {
                 playingNow.add(act);
@@ -40,7 +39,7 @@ public class ActorThreadPool {
         threads.shutdownNow();
     }
 
-    private Queue<Runnable> pendingRunnablesOf(Object act) {
+    private Queue<Runnable> pendingRunnablesOf(T act) {
 
         actsRWLock.readLock().lock();
         Queue<Runnable> pendingRunnables = acts.get(act);
@@ -54,7 +53,7 @@ public class ActorThreadPool {
         return pendingRunnables;
     }
 
-    private void execute(Runnable r, Object act) {
+    private void execute(Runnable r, T act) {
         threads.execute(() -> {
             try {
                 r.run();
@@ -64,7 +63,7 @@ public class ActorThreadPool {
         });
     }
 
-    private void complete(Object act) {
+    private void complete(T act) {
         synchronized (act) {
             Queue<Runnable> pending = pendingRunnablesOf(act);
             if (pending.isEmpty()) {

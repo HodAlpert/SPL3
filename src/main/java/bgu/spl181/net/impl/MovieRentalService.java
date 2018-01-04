@@ -142,10 +142,10 @@ public class MovieRentalService implements DataHandler {
      * @return if (movieName==null)
      * if (movie is in movie's list) return:
      * <”movie name”> <No. copies left> <price> <”banned country”,…>
+     * else if the movie does not exist
+     * @return null
      * else
-     * return null
-     * else
-     * return a list of all  movies names
+     * @return a list of all  movies names
      */
     public String movieInfo(String movieName) {
         synchronized (movieLock){

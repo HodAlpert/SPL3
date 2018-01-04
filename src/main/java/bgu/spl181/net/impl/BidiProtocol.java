@@ -46,6 +46,9 @@ public abstract class BidiProtocol<T> implements BidiMessagingProtocol<T>{
             signout(); //disconnected after signout
     }
 
+    protected void broadcast(String message){
+        connections.broadcast("BROADCAST "+message);
+    }
 
     protected void error(String message){
         connections.send(this.connectionId,"ERROR "+message);

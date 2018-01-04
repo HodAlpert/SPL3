@@ -28,9 +28,9 @@ public class ServerConnections<T> implements Connections<T> {
 
     @Override
     public void broadcast(T msg) {
-        for(ClientForConnections client : map.values()){
-            client.getHandler().send(msg);
-        }
+        for(ClientForConnections client : map.values())
+            if(client.isLoggedin())
+                client.getHandler().send(msg);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ServerConnections<T> implements Connections<T> {
     }
 
     @Override
-    public boolean islogedIn(int connectionId) {//checks if user is connected and logged in
-        return (map.containsKey(connectionId)&&map.get(connectionId).isLogedin());
+    public boolean isloggedIn(int connectionId) {//checks if user is connected and logged in
+        return (map.containsKey(connectionId)&&map.get(connectionId).isLoggedin());
     }
 }

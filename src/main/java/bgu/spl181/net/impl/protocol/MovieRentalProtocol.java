@@ -1,7 +1,7 @@
 package bgu.spl181.net.impl.protocol;
 
 import bgu.spl181.net.api.DataHandler;
-import bgu.spl181.net.impl.MovieRentalService;
+import bgu.spl181.net.impl.DataHandling.MovieRentalService;
 
 public class MovieRentalProtocol extends BidiProtocol {
 

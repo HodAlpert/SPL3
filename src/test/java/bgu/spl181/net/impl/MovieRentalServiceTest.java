@@ -1,5 +1,6 @@
 package bgu.spl181.net.impl;
 
+import bgu.spl181.net.impl.DataHandling.MovieRentalService;
 import bgu.spl181.net.impl.DataHandling.movies.Movie;
 import bgu.spl181.net.impl.DataHandling.movies.MoviesList;
 import bgu.spl181.net.impl.DataHandling.users.User;

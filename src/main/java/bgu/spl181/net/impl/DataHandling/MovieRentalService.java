@@ -1,4 +1,4 @@
-package bgu.spl181.net.impl;
+package bgu.spl181.net.impl.DataHandling;
 
 import bgu.spl181.net.api.DataHandler;
 import bgu.spl181.net.impl.DataHandling.movies.Movie;

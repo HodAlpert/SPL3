@@ -3,7 +3,7 @@ package bgu.spl181.net.srv;
 import bgu.spl181.net.api.MessageEncoderDecoder;
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl181.net.api.bidi.Connections;
-import bgu.spl181.net.impl.ServerConnections;
+import bgu.spl181.net.impl.protocol.ServerConnections;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

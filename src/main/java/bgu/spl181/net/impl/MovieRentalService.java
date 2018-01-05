@@ -1,6 +1,11 @@
 package bgu.spl181.net.impl;
 
 import bgu.spl181.net.api.DataHandler;
+import bgu.spl181.net.impl.DataHandling.movies.Movie;
+import bgu.spl181.net.impl.DataHandling.movies.MoviesList;
+import bgu.spl181.net.impl.DataHandling.users.MovieInUser;
+import bgu.spl181.net.impl.DataHandling.users.User;
+import bgu.spl181.net.impl.DataHandling.users.UsersList;
 import com.google.gson.Gson;
 
 import java.io.FileNotFoundException;
@@ -55,6 +60,7 @@ public class MovieRentalService implements DataHandler {
      * @param country  of user
      *                 adds user to MovieRentalService to the Users.json file
      * @return true if user was registered, false if user was registered before
+     * TODO make sure client performing is not logged in
      */
     @Override
     public boolean registerUser(String name, String password, String country) {
@@ -393,7 +399,6 @@ public class MovieRentalService implements DataHandler {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
     }
     private boolean userNotRentingMovie(String userName, String movieName){
         Movie movie = movies.get(movieName);

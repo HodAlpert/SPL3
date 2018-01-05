@@ -1,4 +1,4 @@
-package bgu.spl181.net.impl;
+package bgu.spl181.net.impl.DataHandling.users;
 
 import java.io.Serializable;
 

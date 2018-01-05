@@ -1,13 +1,9 @@
 package bgu.spl181.net.srv;
 
-import bgu.spl181.net.api.DataHandler;
 import bgu.spl181.net.api.MessageEncoderDecoder;
-import bgu.spl181.net.api.MessagingProtocol;
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl181.net.api.bidi.Connections;
-import bgu.spl181.net.impl.BidiProtocol;
-import bgu.spl181.net.impl.MovieRentalService;
-import bgu.spl181.net.impl.ServerConnections;
+import bgu.spl181.net.impl.protocol.ServerConnections;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -19,7 +15,7 @@ public abstract class BaseServer<T> implements Server<T> {
 
     private final int port;
     private final Supplier<BidiMessagingProtocol<T>> protocolFactory;
-    private final Supplier<MessageEncoderDecoder<T>> encdecFactory;
+    private final Supplier<MessageEncoderDecoder<T>> encderFactory;
     private ServerSocket sock;
     private Connections connections;
     private AtomicInteger connectCount;
@@ -27,11 +23,11 @@ public abstract class BaseServer<T> implements Server<T> {
     public BaseServer(
             int port,
             Supplier<BidiMessagingProtocol<T>> protocolFactory,
-            Supplier<MessageEncoderDecoder<T>> encdecFactory) {
+            Supplier<MessageEncoderDecoder<T>> encderFactory) {
 
         this.port = port;
         this.protocolFactory = protocolFactory;
-        this.encdecFactory = encdecFactory;
+        this.encderFactory = encderFactory;
 		this.sock = null;
 		this.connections=new ServerConnections();
 		this.connectCount = new AtomicInteger(0);
@@ -39,7 +35,7 @@ public abstract class BaseServer<T> implements Server<T> {
 
     @Override
     public void serve() {
-        DataHandler DH= MovieRentalService.getInstance();
+
         try (ServerSocket serverSock = new ServerSocket(port)) {
 			System.out.println("Server started");
 
@@ -51,10 +47,10 @@ public abstract class BaseServer<T> implements Server<T> {
                 BidiMessagingProtocol protocol = protocolFactory.get();
                 BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<T>(
                         clientSock,
-                        encdecFactory.get(),
+                        encderFactory.get(),
                         protocol,
                         this.connections);
-                protocol.start(connectCount.getAndIncrement(),connections,handler,DH);
+                protocol.start(connectCount.getAndIncrement(),connections,handler);
 
                 execute(handler);
             }

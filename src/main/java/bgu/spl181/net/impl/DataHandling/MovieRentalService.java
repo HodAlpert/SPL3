@@ -1,7 +1,6 @@
 package bgu.spl181.net.impl;
 
 import bgu.spl181.net.api.DataHandler;
-import bgu.spl181.net.impl.messages.Message;
 import com.google.gson.Gson;
 
 import java.io.FileNotFoundException;
@@ -71,6 +70,7 @@ public class MovieRentalService implements DataHandler<Message> {
      * @param country  of user
      *                 adds user to MovieRentalService to the Users.json file
      * @return true if user was registered, false if user was registered before
+     * TODO make sure client performing is not logged in
      */
     @Override
     public boolean registerUser(String name, String password, String country) {

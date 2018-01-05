@@ -1,11 +1,9 @@
-package bgu.spl181.net.impl;
+package bgu.spl181.net.impl.protocol;
 
 import bgu.spl181.net.api.bidi.Connections;
 import bgu.spl181.net.srv.ConnectionHandler;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerConnections<T> implements Connections<T> {

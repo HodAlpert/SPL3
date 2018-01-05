@@ -1,6 +1,7 @@
-package bgu.spl181.net.impl;
+package bgu.spl181.net.impl.protocol;
 
 import bgu.spl181.net.api.DataHandler;
+import bgu.spl181.net.impl.MovieRentalService;
 import bgu.spl181.net.impl.messages.Message;
 
 import java.util.LinkedList;

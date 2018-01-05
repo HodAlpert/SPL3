@@ -3,7 +3,7 @@ package bgu.spl181.net.impl.BBreactor;
 import bgu.spl181.net.api.DataHandler;
 import bgu.spl181.net.impl.protocol.MovieRentalProtocol;
 import bgu.spl181.net.impl.DataHandling.MovieRentalService;
-import bgu.spl181.net.impl.echo.LineMessageEncoderDecoder;
+import bgu.spl181.net.impl.encoder.LineMessageEncoderDecoder;
 import bgu.spl181.net.srv.Reactor;
 
 public class ReactorMain {

@@ -66,7 +66,7 @@ public class MovieRentalService implements DataHandler<Message> {
      * and "<name> <body>" would be the string to send
      */
     @Override
-    public Message[] Handle(Message message, String clientName) {
+    public Message[] handle(Message message, String clientName) {
         throw new UnsupportedOperationException("not implemented yet");
     }
 

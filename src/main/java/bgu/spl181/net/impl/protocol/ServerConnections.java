@@ -24,6 +24,10 @@ public class ServerConnections<T> implements Connections<T> {
         return answer;
     }
 
+    public ConcurrentHashMap<Integer, ClientForConnections> getMap() {
+        return map;
+    }
+
     @Override
     public void broadcast(T msg) {
         for(ClientForConnections client : map.values())

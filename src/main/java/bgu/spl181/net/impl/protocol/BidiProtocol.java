@@ -8,8 +8,8 @@ import bgu.spl181.net.srv.ConnectionHandler;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BidiProtocol<T> implements BidiMessagingProtocol<T>{
-    private Connections connections;
-    private int connectionId;
+    protected Connections connections;
+    protected int connectionId;
     protected String userName;
     private AtomicBoolean terminate;
     protected DataHandler service;

@@ -6,9 +6,10 @@ public interface DataHandler<T> {
     /**
      * handle the message
      * @param message
+     * @param clientName the client who sent the message
      * @return responses to the client/s
      */
-    T[] Handle(T message, String clientName);
+    T[] handle(T message, String clientName);
 
     /**
      * @param name of user

@@ -12,7 +12,7 @@ public class ReactorMain {
                Reactor<String> server = new MovieRentalReactor(
                 10,//num of threads
                        Integer.parseInt(args[0]),//the port
-                       ()->new MovieRentalProtocol(service), //protocol factory
+                       ()->new MovieRentalProtocol((MovieRentalService)service), //protocol factory
                 LineMessageEncoderDecoder::new);
         server.serve();
     }

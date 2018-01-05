@@ -1,6 +1,7 @@
 package bgu.spl181.net.impl;
 
 import bgu.spl181.net.api.DataHandler;
+import bgu.spl181.net.impl.messages.Message;
 import com.google.gson.Gson;
 
 import java.io.FileNotFoundException;
@@ -12,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class MovieRentalService implements DataHandler {
+public class MovieRentalService implements DataHandler<Message> {
     private ConcurrentHashMap<String,User> users;
     private ConcurrentHashMap<String,Movie> movies;
     private UsersList userslist;
@@ -47,6 +48,21 @@ public class MovieRentalService implements DataHandler {
                 highestId.set(Integer.decode(movie.getId()));
         }
         System.out.println(this);
+    }
+
+
+    /**
+     * get a message from the client, and process it
+     * @param message
+     * @param clientName the name of the user who sent the Message, null if Client not logged in
+     * @return messages to be sent back to the client/s
+     * IMPORTANT: the returned messages must be Message message = new Message("<name> <body>")
+     * so that <name> could be ACK or ERROR or BROADCAST
+     * and "<name> <body>" would be the string to send
+     */
+    @Override
+    public Message[] Handle(Message message, String clientName) {
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     /**

@@ -1,6 +1,15 @@
 package bgu.spl181.net.api;
 
-public interface DataHandler {
+public interface DataHandler<T> {
+
+
+    /**
+     * handle the message
+     * @param message
+     * @return responses to the client/s
+     */
+    T[] Handle(T message, String clientName);
+
     /**
      * @param name of user
      * @param password of user

@@ -29,8 +29,7 @@ public class ServerConnections<T> implements Connections<T> {
     @Override
     public void broadcast(T msg) {
         for(ClientForConnections client : map.values())
-            if(client.isLoggedin())
-                client.getHandler().send(msg);
+            client.getHandler().send(msg);
     }
 
     @Override

@@ -1,10 +1,12 @@
 package bgu.spl181.net.srv;
 
+import bgu.spl181.net.api.DataHandler;
 import bgu.spl181.net.api.MessageEncoderDecoder;
 import bgu.spl181.net.api.MessagingProtocol;
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl181.net.api.bidi.Connections;
 import bgu.spl181.net.impl.BidiProtocol;
+import bgu.spl181.net.impl.MovieRentalService;
 import bgu.spl181.net.impl.ServerConnections;
 
 import java.io.IOException;
@@ -37,7 +39,7 @@ public abstract class BaseServer<T> implements Server<T> {
 
     @Override
     public void serve() {
-
+        DataHandler DH= MovieRentalService.getInstance();
         try (ServerSocket serverSock = new ServerSocket(port)) {
 			System.out.println("Server started");
 
@@ -52,7 +54,7 @@ public abstract class BaseServer<T> implements Server<T> {
                         encdecFactory.get(),
                         protocol,
                         this.connections);
-                protocol.start(connectCount.getAndIncrement(),connections,handler);
+                protocol.start(connectCount.getAndIncrement(),connections,handler,DH);
 
                 execute(handler);
             }

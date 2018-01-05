@@ -13,7 +13,7 @@ public class ReactorMain {
                 10,//num of threads
                        Integer.parseInt(args[0]),//the port
                        ()->new MovieRentalProtocol(service), //protocol factory
-                LineMessageEncoderDecoder::new); //DataHandler
+                LineMessageEncoderDecoder::new);
         server.serve();
     }
 }

@@ -7,7 +7,6 @@ import bgu.spl181.net.impl.DataHandling.users.User;
 import bgu.spl181.net.impl.DataHandling.users.UsersList;
 import com.google.gson.Gson;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
@@ -70,17 +69,14 @@ public class MovieRentalServiceTest {
             "  ]\n" +
             "}";
 
-    @BeforeClass
-    public static void beforeClass() {
-        service = new MovieRentalService();
-    }
-
     @Before
     public void beforeTest() {
         refreshUsers();
         refreshMovies();
+        service = new MovieRentalService();
 
     }
+
 
     /**
      * 1) positive test- add user that's not exist- should be created
@@ -96,9 +92,10 @@ public class MovieRentalServiceTest {
 
     @Test
     public void registerUserPositiveTest() {
+        refreshUsers();
         boolean register = service.registerUser("omri", "246315", "israel");
-        assertTrue("registerUser returned false, should have return true",register);
         currentUsers=getCurrentUsers();
+        assertTrue("registerUser returned false, should have return true",register);
         assertTrue("user was not registered",currentUsers.containsKey("omri"));
         assertTrue("student was registered with wrong password",
                 currentUsers.get("omri").getPassword().equals("246315"));
@@ -113,13 +110,15 @@ public class MovieRentalServiceTest {
                         currentUsers.get("omri").getMovies().isEmpty());
 
     }
+    @Test
     public void registerUserNegativeTest(){
         boolean register = service.registerUser("john", "246315", "israel");
-        assertFalse("register returned true- should have failed",!register);
+        assertFalse("register returned true- should have failed",register);
         currentUsers=getCurrentUsers();
         assertFalse("user was added to system, should not be added",
                 currentUsers.get("john").getPassword().equals("246315"));
     }
+    @Test
     public void registerUserMultiThreadTest(){
         CopyOnWriteArrayList<Boolean> answer = new CopyOnWriteArrayList<>();
         int counter=0;
@@ -140,7 +139,8 @@ public class MovieRentalServiceTest {
             if (register)
                 counter++;
         }
-        assertTrue("register should have been completed once, completed " +counter+ " times"
+        currentUsers = getCurrentUsers();
+        assertTrue("register should have been completed once, completed " +counter+ " times\n\n "+ currentUsers
                 ,counter==1);
         assertTrue("user was not registered",currentUsers.containsKey("omri"));
         assertTrue("student was registered with wrong password",
@@ -164,6 +164,40 @@ public class MovieRentalServiceTest {
      */
     @Test
     public void loginValidation() {
+        print("---------------------LOGIN VALIDATION TEST-------------------");
+    }
+    @Test
+    public void loginPositiveTest(){
+        boolean login = service.loginValidation("hod","246315");
+        assertTrue("login faild, should have return true",login);
+    }
+    @Test
+    public void loginNegativeTest(){
+        boolean badName = service.loginValidation("hodii","246315");
+        boolean badPassword = service.loginValidation("hod","123456");
+        assertFalse("login succeded, should have failed due to wrong name", badName);
+        assertFalse("login succeded, should have failed due to wrong password", badPassword);
+    }
+    @Test
+    public void loginMultiThreadTest() {
+        CopyOnWriteArrayList<Boolean> answer = new CopyOnWriteArrayList<>();
+        CountDownLatch count = new CountDownLatch(10);
+        for (int i = 0; i < 10; i++) {
+            Thread t = new Thread(() -> {
+                boolean login = service.loginValidation("hod", "246315");
+                answer.add(login);
+                count.countDown();
+            });
+            t.start();
+        }
+        try {
+            count.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        for (Boolean login : answer) {
+            assertTrue("loginvalidation request should return true- failed", login);
+        }
     }
 
     /**
@@ -173,6 +207,12 @@ public class MovieRentalServiceTest {
      */
     @Test
     public void isLoggedIn() {
+
+    }
+    @Test
+    public void isloggedinPositiveTest(){
+        service.loginValidation("hod","246315");
+
     }
 
     /**

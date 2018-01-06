@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 public class UsersList implements Serializable {
-    private List<User> users;
+        private List<User> users;
 
     public List<User> getUsers() {
         return users;

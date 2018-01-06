@@ -52,7 +52,7 @@ public class MovieRentalService implements DataHandler<Message> {
             if (highestId.get()<Integer.decode(movie.getId()))
                 highestId.set(Integer.decode(movie.getId()));
         }
-        System.out.println(this);
+        //System.out.println(this);
     }
 
 
@@ -80,10 +80,10 @@ public class MovieRentalService implements DataHandler<Message> {
      */
     @Override
     public boolean registerUser(String name, String password, String country) {
-        if (isUserExist(name))
-            return false;
         usersLock.writeLock().lock();
         try {
+            if (isUserExist(name))
+                return false;
             User user = new User(name, password, country);
             users.put(name, user);
             userslist.addUser(user);
@@ -106,10 +106,10 @@ public class MovieRentalService implements DataHandler<Message> {
     public boolean loginValidation(String name, String password) {
         usersLock.readLock().lock();
         try {
-            if ((!users.containsKey(name)) | !users.get(name).getPassword().equals(password))
+            if ((!users.containsKey(name)) || !users.get(name).getPassword().equals(password))
                 return false;
             else
-                loggedInUsers.add(name);
+                loggedInUsers.addIfAbsent(name);
             return true;
         }
         finally {
@@ -244,7 +244,7 @@ public class MovieRentalService implements DataHandler<Message> {
      * true
      */
     public boolean rentMovie(String userName, String movieName) {
-        if (isUserExist(userName) & isMovieExist(movieName) & userCanRentMovie(userName, movieName)) {
+        if (isUserExist(userName) & isMovieExist(movieName) & userCanRentMovie(userName, movieName)& availableForRent(movieName)) {
             usersLock.writeLock().lock();
             movieLock.writeLock().lock();
             try {
@@ -454,13 +454,7 @@ public class MovieRentalService implements DataHandler<Message> {
         }
     }
     private boolean isUserExist(String userName){
-        usersLock.readLock().lock();
-        try{
             return users.containsKey(userName);
-        }
-        finally {
-            usersLock.readLock().unlock();
-        }
     }
     private boolean availableForRent(String movie){
         movieLock.readLock().unlock();

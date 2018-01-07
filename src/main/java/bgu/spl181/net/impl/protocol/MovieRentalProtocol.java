@@ -34,8 +34,9 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
         }
 
         else if(message instanceof RegisterMRS){
+            System.out.println("IN");
             RegisterMRS register = (RegisterMRS) message;
-            if(this.userName!=null && MRS.registerUser(register.getUserName(),register.getPassword(),register.getCountry()))
+            if(this.userName==null && MRS.registerUser(register.getUserName(),register.getPassword(),register.getCountry()))
                 connections.send(this.connectionId, new Message("ACK registration succeeded"));
             else
                 connections.send(this.connectionId, new Message("ERROR registration failed"));
@@ -65,24 +66,24 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
                 connections.send(this.connectionId, new Message("ERROR request info failed"));
         }
 
-        else if(message instanceof RequestRent){ // todo BROADCAST movie <”movie name”> < No. copies left > <price>
+        else if(message instanceof RequestRent){
             RequestRent rent = (RequestRent) message;
-            if(userName!=null && MRS.rentMovie(userName,rent.getMovieName())!=null) {
-                Message response = new Message("ACK rent \"" + rent.getMovieName() + "\" success");
-                connections.send(this.connectionId, response);
-                broadcast(response);
+            String data = MRS.rentMovie(userName,rent.getMovieName());
+            if(userName!=null && data!=null) {
+                connections.send(this.connectionId, new Message("ACK rent \" "+rent.getMovieName()+"\" success"));
+                broadcast(new Message("BROADCAST "+data));
             }
             else
                 connections.send(this.connectionId, new Message("ERROR request rent failed"));
 
         }
 
-        else if(message instanceof RequestReturn){ // todo BROADCAST
+        else if(message instanceof RequestReturn){
             RequestReturn returnMovie  = (RequestReturn) message;
-            if(userName!=null && MRS.returnMovie(userName,returnMovie.getMovieName())!=null){
-                Message response = new Message("ACK return \"" + returnMovie.getMovieName() + "\" success");
-                connections.send(this.connectionId, response);
-                broadcast(response);
+            String data = MRS.rentMovie(userName,returnMovie.getMovieName());
+            if(userName!=null && data!=null) {
+                connections.send(this.connectionId, new Message("ACK return \" " + returnMovie.getMovieName() + "\" success"));
+                broadcast(new Message("BROADCAST " + data));
             }
             else
                 connections.send(this.connectionId, new Message("ERROR request return failed"));
@@ -109,9 +110,15 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
                 connections.send(this.connectionId, new Message("ERROR request remmovie failed"));
         }
 
-        else if(message instanceof RequestChangePrice){ // todo BROADCAST
+        else if(message instanceof RequestChangePrice){
             RequestChangePrice changePrice = (RequestChangePrice) message;
-         //   if(userName!=null && )
+            String data = MRS.ChangeMoviePrice(userName,changePrice.getMovieName(),changePrice.getPrice());
+            if(userName!=null && data!=null) {
+                connections.send(this.connectionId, new Message("ACK changeprice \" " + changePrice.getMovieName() + "\" success"));
+                broadcast(new Message("BROADCAST " + data));
+            }
+            else
+                connections.send(this.connectionId, new Message("ERROR request changeprice failed"));
 
         }
         else

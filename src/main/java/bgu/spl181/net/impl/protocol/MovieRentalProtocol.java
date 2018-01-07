@@ -14,7 +14,7 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
     MovieRentalService MRS = (MovieRentalService) service;
         if(message instanceof Login){
             Login login = (Login) message;
-            if(this.userName==null && MRS.loginValidation(login.getUserName(),(login.getPassword()))){
+            if(this.userName==null && !MRS.isLoggedIn(login.getUserName()) && MRS.loginValidation(login.getUserName(),login.getPassword()) ){
                 this.userName = login.getUserName();
                 connections.connect(connectionId);
                 connections.send(this.connectionId,new Message("ACK login succeeded"));
@@ -34,7 +34,6 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
         }
 
         else if(message instanceof RegisterMRS){
-            System.out.println("IN");
             RegisterMRS register = (RegisterMRS) message;
             if(this.userName==null && MRS.registerUser(register.getUserName(),register.getPassword(),register.getCountry()))
                 connections.send(this.connectionId, new Message("ACK registration succeeded"));

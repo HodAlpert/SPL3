@@ -5,15 +5,15 @@ import java.util.List;
 public class Movie {
     private String id;
     private String name;
-    private int price,availableAmount,totalAmount;
+    private String price,availableAmount,totalAmount;
     private List<String> bannedCountries;
 
     public Movie(String id, String name, int price, int totalAmount, List<String> bannedCountries) {
         this.id = id;
         this.name = name;
-        this.price = price;
-        this.availableAmount = totalAmount;
-        this.totalAmount = totalAmount;
+        this.price = String.valueOf(price);
+        this.availableAmount = String.valueOf(totalAmount);
+        this.totalAmount = String.valueOf(totalAmount);
         this.bannedCountries = bannedCountries;
     }
 
@@ -26,7 +26,7 @@ public class Movie {
     }
 
     public int getPrice() {
-        return price;
+        return Integer.valueOf(price);
     }
 
     public List<String> getBannedCountries() {
@@ -34,11 +34,11 @@ public class Movie {
     }
 
     public int getAvailableAmount() {
-        return availableAmount;
+        return Integer.valueOf(availableAmount);
     }
 
     public int getTotalAmount() {
-        return totalAmount;
+        return Integer.valueOf(totalAmount);
     }
 
     public void setId(String id) {
@@ -50,15 +50,15 @@ public class Movie {
     }
 
     public void setPrice(int price) {
-        this.price = price;
+        this.price = String.valueOf(price);
     }
 
     public void setAvailableAmount(int availableAmount) {
-        this.availableAmount = availableAmount;
+        this.availableAmount = String.valueOf(availableAmount);
     }
 
     public void setTotalAmount(int totalAmount) {
-        this.totalAmount = totalAmount;
+        this.totalAmount = String.valueOf(totalAmount);
     }
 
     public void setBannedCountries(List<String> bannedCountries) {

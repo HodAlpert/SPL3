@@ -67,7 +67,7 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
 
         else if(message instanceof RequestRent){ // todo BROADCAST movie <”movie name”> < No. copies left > <price>
             RequestRent rent = (RequestRent) message;
-            if(userName!=null && MRS.rentMovie(userName,rent.getMovieName())) {
+            if(userName!=null && MRS.rentMovie(userName,rent.getMovieName())!=null) {
                 Message response = new Message("ACK rent \"" + rent.getMovieName() + "\" success");
                 connections.send(this.connectionId, response);
                 broadcast(response);
@@ -79,7 +79,7 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
 
         else if(message instanceof RequestReturn){ // todo BROADCAST
             RequestReturn returnMovie  = (RequestReturn) message;
-            if(userName!=null && MRS.returnMovie(userName,returnMovie.getMovieName())){
+            if(userName!=null && MRS.returnMovie(userName,returnMovie.getMovieName())!=null){
                 Message response = new Message("ACK return \"" + returnMovie.getMovieName() + "\" success");
                 connections.send(this.connectionId, response);
                 broadcast(response);
@@ -90,7 +90,7 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
 
         else if(message instanceof RequestAddMovie){
             RequestAddMovie addMovie = (RequestAddMovie) message;
-            if(userName!=null && MRS.addMovie(userName,addMovie.getMovieName(),addMovie.getAmount(),addMovie.getPrice(),addMovie.getBannedCountries())){
+            if(userName!=null && MRS.addMovie(userName,addMovie.getMovieName(),addMovie.getAmount(),addMovie.getPrice(),addMovie.getBannedCountries())!=null){
                 connections.send(this.connectionId, new Message("ACK addmovie \"" + addMovie.getMovieName() + "\" success"));
                 broadcast(new Message("BROADCAST movie \"" + addMovie.getMovieName() + "\" "+addMovie.getAmount()+" "+addMovie.getPrice()));
             }

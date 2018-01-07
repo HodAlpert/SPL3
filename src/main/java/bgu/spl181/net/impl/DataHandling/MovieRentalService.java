@@ -73,13 +73,13 @@ public class MovieRentalService implements DataHandler<Message> {
             User user = new User(name, password, country);
             users.put(name, user);
             userslist.addUser(user);
-            refreshUsers();
-            return true;
-            }
+        }
         finally {
             usersLock.writeLock().unlock();
-
         }
+            refreshUsers();
+            return true;
+
     }
 
     /**
@@ -143,15 +143,18 @@ public class MovieRentalService implements DataHandler<Message> {
      *               adds the amount to user balance
      */
     public int userAddBalance(String userName, int amount) {
+        int answer;
         usersLock.writeLock().lock();
         try {
             users.get(userName).setBalance(users.get(userName).getBalance() + amount);
-            refreshUsers();
-            return users.get(userName).getBalance();
+            answer = users.get(userName).getBalance();
         }
         finally {
             usersLock.writeLock().unlock();
         }
+            refreshUsers();
+            return answer;
+
 
     }
 
@@ -229,30 +232,36 @@ public class MovieRentalService implements DataHandler<Message> {
      * else:
      * true
      */
-    public boolean rentMovie(String userName, String movieName) {
-            usersLock.writeLock().lock();
-            movieLock.writeLock().lock();
-            try {
-                if (isUserExist(userName) && isMovieExist(movieName) && userCanRentMovie(userName, movieName)& availableForRent(movieName)) {
-                    Movie movie = movies.get(movieName);
-                    User user = users.get(userName);
-                    MovieInUser forRent = new MovieInUser(movie.getId(), movieName);
-                    //adding the movieName to the userName rented movieName list
-                    user.getMovies().add(forRent);
-                    //remove the cost from the userName’s balance
-                    user.setBalance(user.getBalance() - movie.getPrice());
-                    //reduce the amount available for rent by 1
-                    movie.setAvailableAmount(movie.getAvailableAmount() - 1);
-                    refreshUsers();
-                    refreshMovies();
-                    return true;
-                }
-            } finally {
-                usersLock.writeLock().unlock();
-                movieLock.writeLock().unlock();
+    public String rentMovie(String userName, String movieName) {
+        boolean check;
+        String answer = null;
+        usersLock.writeLock().lock();
+        movieLock.writeLock().lock();
+        try {
+            check = (isUserExist(userName) && isMovieExist(movieName) && userCanRentMovie(userName, movieName)& availableForRent(movieName));
+            if (check) {
+                Movie movie = movies.get(movieName);
+                User user = users.get(userName);
+                MovieInUser forRent = new MovieInUser(movie.getId(), movieName);
+                //adding the movieName to the userName rented movieName list
+                user.getMovies().add(forRent);
+                //remove the cost from the userName’s balance
+                user.setBalance(user.getBalance() - movie.getPrice());
+                //reduce the amount available for rent by 1
+                movie.setAvailableAmount(movie.getAvailableAmount() - 1);
+                answer = movieInfo(movieName);
             }
-        return false;
-    }
+        } finally {
+            usersLock.writeLock().unlock();
+            movieLock.writeLock().unlock();
+        }
+        if(check) {
+            refreshUsers();
+            refreshMovies();
+        }
+
+    return answer;
+}
 
     /**
      * @param movieName  who wants to rent the movie
@@ -263,34 +272,37 @@ public class MovieRentalService implements DataHandler<Message> {
      * 1. The user is currently not renting the movie
      * 2. The movie does not exist
      */
-    public boolean returnMovie(String userName, String movieName) {
+    public String returnMovie(String userName, String movieName) {
+        boolean check;
+        String answer = null;
         movieLock.writeLock().lock();
         usersLock.writeLock().lock();
-        try{
-            if (isUserExist(userName)&&isMovieExist(movieName)&&!userNotRentingMovie(userName,movieName)){
+        try {
+            check = isUserExist(userName) && isMovieExist(movieName) && !userNotRentingMovie(userName, movieName);
+            if (check) {
                 Movie movie = movies.get(movieName);
-            User user = users.get(userName);
-            //remove the movie from the user rented movie list
-            for (MovieInUser toRemove : user.getMovies()) {
-                if (toRemove.getName().equals(movie.getName())) {
-                    user.getMovies().remove(toRemove);
-                    break;
+                User user = users.get(userName);
+                //remove the movie from the user rented movie list
+                for (MovieInUser toRemove : user.getMovies()) {
+                    if (toRemove.getName().equals(movie.getName())) {
+                        user.getMovies().remove(toRemove);
+                        answer = movieInfo(movieName);
+                        break;
+                    }
                 }
+                //increase the amount of available copies of the movies by 1
+                movie.setAvailableAmount(movie.getAvailableAmount() + 1);
             }
-            //increase the amount of available copies of the movies by 1
-            movie.setAvailableAmount(movie.getAvailableAmount() + 1);
-            refreshMovies();
-            refreshUsers();
-            return true;
-            }
-
         }
         finally {
-            movieLock.writeLock().unlock();
-            usersLock.writeLock().unlock();
-        }
-
-        return false;
+                movieLock.writeLock().unlock();
+                usersLock.writeLock().unlock();
+            }
+            if(check) {
+                refreshMovies();
+                refreshUsers();
+            }
+        return answer;
     }
 
 
@@ -306,24 +318,29 @@ public class MovieRentalService implements DataHandler<Message> {
      * 2. Movie name already exists in the system
      * 3. Price or Amount are smaller than or equal to 0 (there are no free movies)
      */
-    public boolean addMovie(String userName, String movieName, int totalAmount, int price, List<String> bannedCountries) {
+    public String addMovie(String userName, String movieName, int totalAmount, int price, List<String> bannedCountries) {
 
         boolean priceAndAmountOK;
         priceAndAmountOK = totalAmount>0&price>0;
-        if(!isMovieExist(movieName)&isUserAdmin(userName)&priceAndAmountOK){
-            movieLock.writeLock().lock();
+        boolean check;
+        String answer = null;
+        movieLock.writeLock().lock();
             try{
-                Movie newMovie = new Movie(String.valueOf(highestId.get()),movieName,price,totalAmount,bannedCountries);
-                movies.put(movieName,newMovie);
-                movielist.getMovies().add(newMovie);
-                refreshMovies();
-                return true;
+                check = !isMovieExist(movieName)&isUserAdmin(userName)&priceAndAmountOK;
+                if (check) {
+                    Movie newMovie = new Movie(String.valueOf(highestId.get()), movieName, price, totalAmount, bannedCountries);
+                    movies.put(movieName, newMovie);
+                    movielist.getMovies().add(newMovie);
+                    answer = movieStatus(movieName);
+                }
             }
             finally {
                 movieLock.writeLock().unlock();
             }
-        }
-        return false;
+            if (check&priceAndAmountOK) {
+                refreshMovies();
+            }
+        return answer;
     }
 
     /**
@@ -336,18 +353,23 @@ public class MovieRentalService implements DataHandler<Message> {
      */
     public boolean removeMovie(String userName, String movieName) {
         movieLock.writeLock().lock();
-        try{
-            if (isUserAdmin(userName)&!isMovieExist(movieName)&userNotRentingMovie(userName,movieName)) {//checks condition Number 1
-
+        boolean check;
+        try {
+            check = isUserAdmin(userName) & isMovieExist(movieName) & userNotRentingMovie(userName, movieName);
+            if (check) {//checks condition Number 1
                 movielist.getMovies().remove(movies.get(movieName));
                 movies.remove(movieName);
-                refreshMovies();
-                return true;
             }
         }
         finally {
-            movieLock.writeLock().unlock();
-        }
+                movieLock.writeLock().unlock();
+            }
+            if (check) {
+                refreshMovies();
+                return true;
+            }
+
+
 
         return false;
     }
@@ -361,19 +383,24 @@ public class MovieRentalService implements DataHandler<Message> {
      * 2. Movie does not exist in the system
      * 3. Price is smaller than or equal to 0
      */
-    public boolean ChangeMoviePrice(String userName, String movieName, int price) {
+    public String ChangeMoviePrice(String userName, String movieName, int price) {
         movieLock.writeLock().lock();
+        String answer = null;
+        boolean check;
         try {
-            if(isUserAdmin(userName) & isMovieExist(movieName)& price>0) {
+            check = isUserAdmin(userName) & isMovieExist(movieName) & price > 0;
+            if (check) {
                 movies.get(movieName).setPrice(price);
-                refreshMovies();
-                return true;
+                answer = movieStatus(movieName);
             }
-        } finally {
+        }
+        finally {
             movieLock.writeLock().unlock();
         }
-
-        return false;
+        if(check) {
+            refreshMovies();
+        }
+        return answer;
     }
 
     @Override
@@ -424,6 +451,14 @@ public class MovieRentalService implements DataHandler<Message> {
         finally {
             usersLock.readLock().unlock();
         }
+    }
+    //assuming movie exist in database
+    public String movieStatus(String name){
+        StringBuilder answer = new StringBuilder();
+        Movie movie = movies.get(name);
+        answer.append("movie \"").append(movie.getName()).append("\" ").
+                append(movie.getAvailableAmount()).append(" ").append(movie.getPrice());
+        return String.valueOf(answer);
     }
 
     private boolean isMovieExist(String movieName){

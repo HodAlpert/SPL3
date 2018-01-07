@@ -36,7 +36,7 @@ public class MovieRentalServiceTest{
     HashMap<String,User> currentUsers;
     HashMap<String,Movie> currentMovies;
     static MovieRentalService service;
-    String defaultuserFile = "{\"users\":[{\"username\":\"john\",\"password\":\"potato\",\"type\":\"admin\",\"country\":\"united states\",\"movies\":[],\"balance\":0},{\"username\":\"lisa\",\"password\":\"chips123\",\"type\":\"normal\",\"country\":\"spain\",\"movies\":[{\"id\":\"2\",\"name\":\"The Pursuit Of Happyness\"},{\"id\":\"3\",\"name\":\"The Notebook\"}],\"balance\":37},{\"username\":\"shlomi\",\"password\":\"cocacola\",\"type\":\"normal\",\"country\":\"israel\",\"movies\":[{\"id\":\"1\",\"name\":\"The Godfather\"},{\"id\":\"2\",\"name\":\"The Pursuit Of Happyness\"}],\"balance\":112},{\"username\":\"hod0\",\"password\":\"246315\",\"type\":\"normal\",\"country\":\"israel\",\"movies\":[],\"balance\":15},{\"username\":\"hod1\",\"password\":\"246315\",\"type\":\"normal\",\"country\":\"israel\",\"movies\":[],\"balance\":15},{\"username\":\"hod2\",\"password\":\"246315\",\"type\":\"normal\",\"country\":\"israel\",\"movies\":[],\"balance\":15},{\"username\":\"hod3\",\"password\":\"246315\",\"type\":\"normal\",\"country\":\"israel\",\"movies\":[],\"balance\":15},{\"username\":\"hod4\",\"password\":\"246315\",\"type\":\"normal\",\"country\":\"israel\",\"movies\":[],\"balance\":55}]}";
+    String defaultuserFile = "{\"users\":[{\"username\":\"john\",\"password\":\"potato\",\"type\":\"admin\",\"country\":\"united states\",\"movies\":[],\"balance\":\"0\"},{\"username\":\"lisa\",\"password\":\"chips123\",\"type\":\"normal\",\"country\":\"spain\",\"movies\":[{\"id\":\"2\",\"name\":\"The Pursuit Of Happyness\"},{\"id\":\"3\",\"name\":\"The Notebook\"}],\"balance\":\"37\"},{\"username\":\"shlomi\",\"password\":\"cocacola\",\"type\":\"normal\",\"country\":\"israel\",\"movies\":[{\"id\":\"1\",\"name\":\"The Godfather\"},{\"id\":\"2\",\"name\":\"The Pursuit Of Happyness\"}],\"balance\":\"112\"},{\"username\":\"hod0\",\"password\":\"246315\",\"type\":\"normal\",\"country\":\"israel\",\"movies\":[],\"balance\":\"15\"},{\"username\":\"hod1\",\"password\":\"246315\",\"type\":\"normal\",\"country\":\"israel\",\"movies\":[],\"balance\":\"15\"},{\"username\":\"hod2\",\"password\":\"246315\",\"type\":\"normal\",\"country\":\"israel\",\"movies\":[],\"balance\":\"15\"},{\"username\":\"hod3\",\"password\":\"246315\",\"type\":\"normal\",\"country\":\"israel\",\"movies\":[],\"balance\":\"15\"},{\"username\":\"hod4\",\"password\":\"246315\",\"type\":\"normal\",\"country\":\"israel\",\"movies\":[],\"balance\":\"55\"}]}";
     String DefaultMovieFile = "{\n" +
             "  \"movies\": [\n" +
             "    {\n" +
@@ -329,7 +329,7 @@ public class MovieRentalServiceTest{
 
     @Test
     public void RentingAMoviePositiveTest() {
-        boolean rentMovie =service.rentMovie("lisa","Justice League");
+        boolean rentMovie =service.rentMovie("lisa","Justice League")!=null;
         assertTrue("movie should have been rented",rentMovie);
         currentUsers = getCurrentUsers();
         currentMovies = getCurrentMovies();
@@ -342,28 +342,28 @@ public class MovieRentalServiceTest{
     }
     @Test
     public void RentingAMovieNotExist() {
-        assertFalse("movie name not exist- should not be rented",
-                service.rentMovie("lisa","nonExistingMovie"));
+        assertTrue("movie name not exist- should not be rented",
+                service.rentMovie("lisa","nonExistingMovie")==null);
     }
     @Test
     public void RentingAMovieNoAvailableCopies() {
-        assertFalse("movie \"The Notebook\" has no available copies",
-                service.rentMovie("lisa","The Notebook"));
+        assertTrue("movie \"The Notebook\" has no available copies",
+                service.rentMovie("lisa","The Notebook")==null);
     }
     @Test
     public void RentingAMovieBannedUserCountry() {
-        assertFalse("movie cannot be rented in user's country",
-                service.rentMovie("lisa","The Godfather"));
+        assertTrue("movie cannot be rented in user's country",
+                service.rentMovie("lisa","The Godfather")==null);
     }
     @Test
     public void RentingAMovieRentedByUser() {
-        assertFalse("movie is already rented by user",
-                service.rentMovie("lisa","The Pursuit Of Happyness"));
+        assertTrue("movie is already rented by user",
+                service.rentMovie("lisa","The Pursuit Of Happyness")==null);
     }
     @Test
     public void RentingAMovieUserNotExist() {
-        assertFalse("user not exist",
-                service.rentMovie("lalaa","The Pursuit Of Happyness"));
+        assertTrue("user not exist",
+                service.rentMovie("lalaa","The Pursuit Of Happyness")==null);
     }
     @Test
     public void RentingAMovieMultiThreadTest1(){
@@ -372,24 +372,24 @@ public class MovieRentalServiceTest{
         Thread[] threads =new Thread[5];
         CountDownLatch count = new CountDownLatch(5);
             threads[0] = new Thread(()->{
-               answer.add(service.rentMovie("hod"+0,"The Pursuit Of Happyness"));
+               answer.add(service.rentMovie("hod"+0,"The Pursuit Of Happyness")!=null);
                 count.countDown();
 
             });
         threads[1] = new Thread(()->{
-            answer.add(service.rentMovie("hod"+1,"The Pursuit Of Happyness"));
+            answer.add(service.rentMovie("hod"+1,"The Pursuit Of Happyness")!=null);
             count.countDown();
 
         });threads[2] = new Thread(()->{
-            answer.add(service.rentMovie("hod"+2,"The Pursuit Of Happyness"));
+            answer.add(service.rentMovie("hod"+2,"The Pursuit Of Happyness")!=null);
             count.countDown();
 
         });threads[3] = new Thread(()->{
-            answer.add(service.rentMovie("hod"+3,"The Pursuit Of Happyness"));
+            answer.add(service.rentMovie("hod"+3,"The Pursuit Of Happyness")!=null);
             count.countDown();
 
         });threads[4] = new Thread(()->{
-            answer.add(service.rentMovie("hod"+4,"The Pursuit Of Happyness"));
+            answer.add(service.rentMovie("hod"+4,"The Pursuit Of Happyness")!=null);
             count.countDown();
 
         });
@@ -414,15 +414,15 @@ public class MovieRentalServiceTest{
         Thread[] threads =new Thread[3];
         CountDownLatch count = new CountDownLatch(3);
         threads[0]=new Thread(()->{
-           answer.add(service.rentMovie("hod4","The Pursuit Of Happyness"));
+           answer.add(service.rentMovie("hod4","The Pursuit Of Happyness")!=null);
            count.countDown();
         });
         threads[1]=new Thread(()->{
-            answer.add(service.rentMovie("hod4","Justice League"));
+            answer.add(service.rentMovie("hod4","Justice League")!=null);
             count.countDown();
         });
         threads[2]=new Thread(()->{
-            answer.add(service.rentMovie("hod4","The Godfather"));
+            answer.add(service.rentMovie("hod4","The Godfather")!=null);
             count.countDown();
         });
         for(int i=0;i<3;i++){
@@ -453,7 +453,7 @@ public class MovieRentalServiceTest{
      */
     @Test
     public void returnMoviePositiveTest() {
-        assertTrue("return movie call should have return true",service.returnMovie("lisa","The Pursuit Of Happyness"));
+        assertTrue("return movie call should have return true",service.returnMovie("lisa","The Pursuit Of Happyness")!=null);
         currentUsers = getCurrentUsers();
         currentMovies = getCurrentMovies();
         assertFalse("movie \"The Pursuit Of Happyness\" should be removed from user's movie List",
@@ -463,17 +463,17 @@ public class MovieRentalServiceTest{
     }
     @Test
     public void returnMovieNotRentedByUserTest() {
-        assertFalse("movie was not rented by user",
-                service.returnMovie("john","The Pursuit Of Happyness"));
+        assertTrue("movie was not rented by user",
+                service.returnMovie("john","The Pursuit Of Happyness")==null);
     }
     @Test
     public void returnMovieNotExistTest() {
-        assertFalse("movie was not exist",
-                service.returnMovie("john","The Pursuit Of Happynes2s"));
+        assertTrue("movie was not exist",
+                service.returnMovie("john","The Pursuit Of Happynes2s")==null);
     }
     @Test
     public void returnMovieMultiThreadTest() {
-        CopyOnWriteArrayList<Boolean> answer = new CopyOnWriteArrayList<>();
+        CopyOnWriteArrayList<String> answer = new CopyOnWriteArrayList<>();
         int counter = 0;
         Thread[] threads =new Thread[3];
         CountDownLatch count = new CountDownLatch(3);
@@ -492,8 +492,8 @@ public class MovieRentalServiceTest{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        for (boolean ans:answer){
-            if (ans)
+        for (String ans:answer){
+            if (ans!=null)
                 counter++;
         }
 
@@ -515,7 +515,7 @@ public class MovieRentalServiceTest{
     @Test
     public void addMovie() {
         assertTrue("movie should return true",
-                service.addMovie("john","hod's new movie",3 ,10, new ArrayList<>(Arrays.asList("country1", "country2"))));
+                service.addMovie("john","hod's new movie",3 ,10, new ArrayList<>(Arrays.asList("country1", "country2")))!=null);
         currentMovies = getCurrentMovies();
         assertTrue("new movie should be added",
               currentMovies.containsKey("hod's new movie"));
@@ -533,6 +533,68 @@ public class MovieRentalServiceTest{
         assertTrue("total amount should be 3, was "+ hodMovie.getTotalAmount(),
                 hodMovie.getTotalAmount()==3);
     }
+    @Test
+    public void addMovieNonAdminUserTest(){
+        assertTrue("movie should not be added because user is not admin"
+                ,service.addMovie("hod0","test",5,5,new ArrayList<>(Arrays.asList("country1", "country2")))==null);
+        currentMovies = getCurrentMovies();
+        assertFalse("movie should not be in the system",
+                currentMovies.containsKey("test"));
+    }
+    @Test
+    public void addExistMovieTest(){
+        assertTrue("movie should not be added because movie Exist"
+                ,service.addMovie("hod0","The Godfather",5,5,new ArrayList<>(Arrays.asList("country1", "country2")))==null);
+        currentMovies = getCurrentMovies();
+        assertFalse("movie should not be in the system",
+                currentMovies.containsKey("test"));
+    }
+    @Test
+    public void addMovieWrongPriceTest(){
+        assertTrue("movie should not be added because price is incorrect"
+                ,service.addMovie("hod0","test",5,0,new ArrayList<>(Arrays.asList("country1", "country2")))==null);
+        currentMovies = getCurrentMovies();
+        assertFalse("movie should not be in the system",
+                currentMovies.containsKey("test"));
+    }
+    @Test
+    public void addMovieWrongAmountTest(){
+        assertTrue("movie should not be added because amount is incorrect"
+                ,service.addMovie("hod0","test",0,5,new ArrayList<>(Arrays.asList("country1", "country2")))==null);
+        currentMovies = getCurrentMovies();
+        assertFalse("movie should not be in the system",
+                currentMovies.containsKey("test"));
+    }
+    @Test
+    public void addMovieMultiThreadTest() {
+        CopyOnWriteArrayList<String> answer = new CopyOnWriteArrayList<>();
+        int counter = 0;
+        Thread[] threads =new Thread[5];
+        CountDownLatch count = new CountDownLatch(5);
+        for (int i=0;i<5;i++){
+            threads[i]=new Thread(()->{
+
+                answer.add(service.addMovie("john","hod's new movie",3 ,10, new ArrayList<>(Arrays.asList("country1", "country2"))));
+                count.countDown();
+            });
+        }
+        for(int i=0;i<5;i++){
+            threads[i].start();
+        }
+        try {
+            count.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        for (String ans:answer){
+            if (ans!=null)
+                counter++;
+        }
+
+        assertTrue("should be able to add movie  once, added "+ counter+ " times"
+                ,counter==1);
+    }
+
 
 
 
@@ -544,7 +606,58 @@ public class MovieRentalServiceTest{
      * 5) threadSafe Test- remove movie by 3 threads, only 1 should succeed
      */
     @Test
-    public void removeMovie() {
+    public void removeMoviePositiveTest() {
+        assertTrue("movie should be removed",
+                service.removeMovie("john","Justice League"));
+        currentMovies = getCurrentMovies();
+        assertFalse("movie should not be in the system anymore",
+                currentMovies.containsKey("Justice League"));
+    }
+    @Test
+    public void removeMovieNonAdminUserTest(){
+        assertFalse("movie should not be removed because user is not admin"
+                ,service.removeMovie("hod0","Justice League"));
+        currentMovies = getCurrentMovies();
+        assertTrue("movie should be in the system",
+                currentMovies.containsKey("Justice League"));
+    }
+    @Test
+    public void removeNonExistMovieTest(){
+        assertFalse("movie should not be removed because movie not Exist"
+                ,service.removeMovie("john","Justice Leagueee"));
+        currentMovies = getCurrentMovies();
+        assertTrue("movie should be in the system",
+                currentMovies.containsKey("Justice League"));
+    }
+    @Test
+    public void removeMovieMultiThreadTest(){
+        CopyOnWriteArrayList<Boolean> answer = new CopyOnWriteArrayList<>();
+        int counter = 0;
+        Thread[] threads =new Thread[5];
+        CountDownLatch count = new CountDownLatch(5);
+        for (int i=0;i<5;i++){
+            threads[i]=new Thread(()->{
+
+                answer.add(service.removeMovie("john","Justice League"));
+                count.countDown();
+            });
+        }
+        for(int i=0;i<5;i++){
+            threads[i].start();
+        }
+        try {
+            count.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        for (boolean ans:answer){
+            if (ans)
+                counter++;
+        }
+
+        assertTrue("should be able to add movie  once, added "+ counter+ " times"
+                ,counter==1);
+
     }
 
     /**
@@ -555,9 +668,31 @@ public class MovieRentalServiceTest{
      * 5) threadSafe Test- change same movie's price by 5 threads, price result should by of one of the threads
      */
     @Test
-    public void changeMoviePrice() {
+    public void changeMoviePricePositiveTest() {
+        assertTrue("returned false, should return true"
+                ,service.ChangeMoviePrice("john", "The Godfather",10)!=null);
+        currentMovies = getCurrentMovies();
+        assertTrue("price should change to 10",
+                currentMovies.get("The Godfather").getPrice()==10);
+    }
+    @Test
+    public void ChangeMoviePriceNonAdminUser(){
+        assertTrue("should return false",
+                service.ChangeMoviePrice("hod0","The Godfather",10)==null);
+        currentMovies=getCurrentMovies();
+        assertTrue("price should have stayed 25",
+                currentMovies.get("The Godfather").getPrice()==25);
+    }
+    @Test
+    public void ChangeMoviePriceMovieNotExist(){
+        assertTrue("should return false",
+                service.ChangeMoviePrice("john","The Gggodfather",10)==null);
     }
 
+    @Test
+    public void movieStatus(){
+        print(service.movieStatus("The Godfather"));
+    }
     private void refreshUsers() {
         try (PrintWriter out = new PrintWriter("Database/Users.json")) {
             out.print(defaultuserFile);
@@ -566,6 +701,8 @@ public class MovieRentalServiceTest{
             e.printStackTrace();
         }
     }
+
+
 
     private void refreshMovies() {
         try (PrintWriter out = new PrintWriter("Database/Movies.json")) {

@@ -9,14 +9,14 @@ public class User implements Serializable{
     private String type;
     private String country;
     private ArrayList<MovieInUser> movies;
-    private int balance;
+    private String balance;
 
     public User(String username, String password, String country ) {
         this.username = username;
         this.type = "normal";
         this.password = password;
         this.country = country;
-        this.balance = balance;
+        this.balance = String.valueOf(0);
         this.movies = new ArrayList<>();
     }
 
@@ -53,11 +53,11 @@ public class User implements Serializable{
     }
 
     public int getBalance() {
-        return balance;
+        return Integer.valueOf(balance);
     }
 
     public void setBalance(int balance) {
-        this.balance = balance;
+        this.balance = String.valueOf(balance);
     }
 
     @Override

@@ -23,7 +23,7 @@ public class RequestAddMovie extends Request{
         if(s.length==2){
             String[] countries = s[1].split("\"");
             for(int i =0; i<countries.length;i++)
-                if(!countries[i].equals("") && !countries[i].equals(""))
+                if(!countries[i].equals(" ") && !countries[i].equals(""))
                     this.bannedCountries.add(countries[i]);
         }
     }

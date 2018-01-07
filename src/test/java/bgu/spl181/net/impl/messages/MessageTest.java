@@ -3,6 +3,9 @@ package bgu.spl181.net.impl.messages;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 public class MessageTest {
@@ -44,14 +47,54 @@ public class MessageTest {
     }
 
     @Test
-    public void info(){
-        info1=info1.unpackMessage().unpackMessage();
-        info2=info2.unpackMessage().unpackMessage();
-        RequestInfo unpacked1 = (RequestInfo) info1;
-        RequestInfo unpacked2 = (RequestInfo) info2;
-        assertTrue("incorrect movieName for info1",unpacked1.getMovieName()==null);
-        assertTrue("incorrect movieName for info2",unpacked2.getMovieName().equals("The Notebook"));
+    public void rent(){
+        rent=rent.unpackMessage().unpackMessage();
+        RequestRent unpacked = (RequestRent) rent;
+        assertTrue("incorrect movieName",unpacked.getMovieName().equals("The Notebook"));
+
     }
+    @Test
+    public void returnMovie(){
+        returnMovie=returnMovie.unpackMessage().unpackMessage();
+        RequestReturn unpacked = (RequestReturn) returnMovie;
+        assertTrue("incorrect movieName",unpacked.getMovieName().equals("The Notebook"));
+    }
+    @Test
+    public void remmovie(){
+        remmovie=remmovie.unpackMessage().unpackMessage();
+        RequestRemMovie unpacked = (RequestRemMovie) remmovie;
+        assertTrue("incorrect movieName",unpacked.getMovieName().equals("The Godfather"));
+    }
+    @Test
+    public void addmovie(){
+        addmovie=addmovie.unpackMessage().unpackMessage();
+        RequestAddMovie unpacked = (RequestAddMovie) addmovie;
+        assertTrue("incorrect movieName",unpacked.getMovieName().equals("South Park: Bigger, Longer & Uncut"));
+        assertTrue("incorrect amount",unpacked.getAmount()==30);
+        assertTrue("incorrect price, got: "+unpacked.getPrice()+" instead of 9",unpacked.getPrice()==9);
+
+        List<String> countries = new LinkedList<>();
+        countries.add("Israel");
+        countries.add("Iran");
+        countries.add("Italy");
+        assertTrue("incorrect bannedCountries",unpacked.getBannedCountries().containsAll(countries));
+        assertTrue("incorrect bannedCountries",unpacked.getBannedCountries().size()==3);
+    }
+
+    @Test
+    public void balanceAdd(){
+        balanceAdd=balanceAdd.unpackMessage().unpackMessage();
+        RequestBalanceAdd unpacked = (RequestBalanceAdd) balanceAdd;
+        assertTrue("incorrect amount",unpacked.getAmount()==-12);
+    }
+    @Test
+    public void changePrice(){
+        changeprice=changeprice.unpackMessage().unpackMessage();
+        RequestChangePrice unpacked = (RequestChangePrice) changeprice;
+        assertTrue("incorrect movieName",unpacked.getMovieName().equals("The Notebook"));
+        assertTrue("incorrect price",unpacked.getPrice()==22);
+    }
+
 
     @Test
     public void unpack(){

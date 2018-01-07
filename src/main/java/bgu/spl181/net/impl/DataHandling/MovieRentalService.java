@@ -56,21 +56,6 @@ public class MovieRentalService implements DataHandler<Message> {
         //System.out.println(this);
     }
 
-
-    /**
-     * get a message from the client, and process it
-     * @param message
-     * @param clientName the name of the user who sent the Message, null if Client not logged in
-     * @return messages to be sent back to the client/s
-     * IMPORTANT: the returned messages must be Message message = new Message("<name> <body>")
-     * so that <name> could be ACK or ERROR or BROADCAST
-     * and "<name> <body>" would be the string to send
-     */
-    @Override
-    public Message[] handle(Message message, String clientName) {
-        throw new UnsupportedOperationException("not implemented yet");
-    }
-
     /**
      * @param name     of user
      * @param password of user

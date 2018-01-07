@@ -4,14 +4,6 @@ public interface DataHandler<T> {
 
 
     /**
-     * handle the message
-     * @param message
-     * @param clientName the client who sent the message
-     * @return responses to the client/s
-     */
-    T[] handle(T message, String clientName);
-
-    /**
      * @param name of user
      * @param password of user
      * @param dataBlock of user

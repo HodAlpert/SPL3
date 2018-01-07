@@ -8,7 +8,10 @@ public class Message {
         this.originalMessage=message;
         String[] s = message.split(" ", 2);
         this.name=s[0];
-        this.body=s[1];
+        if(s.length==2)
+            this.body=s[1];
+        else
+            this.body=null;
     }
 
     public String getOriginalMessage() {

@@ -12,14 +12,16 @@ public class RequestAddMovie extends Request{
 
     public RequestAddMovie(String message) {
         super(message);
-        String[] s = getRequestBody().split(" ",4);
-        this.movieName = s[0].split("\"")[1];
-        this.amount = Integer.parseInt(s[1]);
-        this.price = Integer.parseInt(s[2]);
+        String[] s = getRequestBody().split("\"",3);
+        this.movieName = s[1];
+
+        s = s[2].split("\"",2);
+        this.amount = Integer.parseInt(s[0].split(" ")[1]);
+        this.price = Integer.parseInt(s[0].split(" ")[2]);
 
         this.bannedCountries = new LinkedList<>();
-        if(s.length==4){
-            String[] countries = s[4].split("\"");
+        if(s.length==2){
+            String[] countries = s[1].split("\"");
             for(int i =0; i<countries.length;i++)
                 if(!countries[i].equals("") && !countries[i].equals(""))
                     this.bannedCountries.add(countries[i]);

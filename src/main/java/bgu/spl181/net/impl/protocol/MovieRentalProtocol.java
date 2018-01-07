@@ -50,7 +50,7 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
 
         else if(message instanceof RequestBalanceAdd){
             RequestBalanceAdd balanceAdd = (RequestBalanceAdd) message;
-            if(userName!=null)
+            if(userName!=null && balanceAdd.getAmount()>0)
                 connections.send(this.connectionId, new Message("ACK balance "+MRS.userAddBalance(userName,balanceAdd.getAmount())+" added "+balanceAdd.getAmount()));
             else
                 connections.send(this.connectionId, new Message("ERROR request balance add failed"));

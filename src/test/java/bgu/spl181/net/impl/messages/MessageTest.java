@@ -27,6 +27,33 @@ public class MessageTest {
     }
 
     @Test
+    public void register(){
+        register=register.unpackMessage().unpackMessage();
+        RegisterMRS unpacked = (RegisterMRS)register;
+        assertTrue("incorrect userName",unpacked.getUserName().equals("shlomi"));
+        assertTrue("incorrect password, got: "+unpacked.getPassword()+" instead of tryingagain",unpacked.getPassword().equals("tryingagain"));
+        assertTrue("incorrect country",unpacked.getCountry().equals("Russia"));
+    }
+
+    @Test
+    public void login(){
+        login=login.unpackMessage();
+        Login unpacked = (Login) login;
+        assertTrue("incorrect userName",unpacked.getUserName().equals("shlomi"));
+        assertTrue("incorrect password",unpacked.getPassword().equals("mahpass"));
+    }
+
+    @Test
+    public void info(){
+        info1=info1.unpackMessage().unpackMessage();
+        info2=info2.unpackMessage().unpackMessage();
+        RequestInfo unpacked1 = (RequestInfo) info1;
+        RequestInfo unpacked2 = (RequestInfo) info2;
+        assertTrue("incorrect movieName for info1",unpacked1.getMovieName()==null);
+        assertTrue("incorrect movieName for info2",unpacked2.getMovieName().equals("The Notebook"));
+    }
+
+    @Test
     public void unpack(){
         register=register.unpackMessage();
         assertTrue("register unpack failed",register instanceof Register);

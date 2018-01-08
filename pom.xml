@@ -30,28 +30,6 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
-                <executions>
-                    <execution>
-
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <mainClass>bgu.spl181.net.impl.BBreactor.ReactorMain</mainClass>
-                    <arguments>
-                        <argument>port</argument>
-
-                    </arguments>
-                    <systemProperties>
-                        <systemProperty>
-                            <key>myproperty</key>
-                            <value>myvalue</value>
-                        </systemProperty>
-
-                    </systemProperties>
-                </configuration>
             </plugin>
         </plugins>
     </build>

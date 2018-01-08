@@ -238,7 +238,7 @@ public class MovieRentalService implements DataHandler<Message> {
         usersLock.writeLock().lock();
         movieLock.writeLock().lock();
         try {
-            check = (isUserExist(userName) && isMovieExist(movieName) && userCanRentMovie(userName, movieName)& availableForRent(movieName));
+            check = (isUserExist(userName) && isMovieExist(movieName) && userCanRentMovie(userName, movieName)&& availableForRent(movieName));
             if (check) {
                 Movie movie = movies.get(movieName);
                 User user = users.get(userName);

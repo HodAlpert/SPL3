@@ -28,12 +28,7 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
                 this.userName = null;
                 connections.send(this.connectionId, new Message("ACK signout succeeded"));
                 terminate.set(true);
-                try {
-                    Thread.currentThread().sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                connections.disconnect(connectionId);
+               // connections.disconnect(connectionId);
             }
             else
                 connections.send(this.connectionId, new Message("ERROR signout failed"));

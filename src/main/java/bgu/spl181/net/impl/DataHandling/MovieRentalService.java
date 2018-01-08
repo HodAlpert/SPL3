@@ -249,7 +249,7 @@ public class MovieRentalService implements DataHandler<Message> {
                 user.setBalance(user.getBalance() - movie.getPrice());
                 //reduce the amount available for rent by 1
                 movie.setAvailableAmount(movie.getAvailableAmount() - 1);
-                answer = movieInfo(movieName);
+                answer = movieStatus(movieName);
             }
         } finally {
             usersLock.writeLock().unlock();
@@ -286,7 +286,7 @@ public class MovieRentalService implements DataHandler<Message> {
                 for (MovieInUser toRemove : user.getMovies()) {
                     if (toRemove.getName().equals(movie.getName())) {
                         user.getMovies().remove(toRemove);
-                        answer = movieInfo(movieName);
+                        answer = movieStatus(movieName);
                         break;
                     }
                 }

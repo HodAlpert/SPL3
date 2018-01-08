@@ -286,12 +286,12 @@ public class MovieRentalService implements DataHandler<Message> {
                 for (MovieInUser toRemove : user.getMovies()) {
                     if (toRemove.getName().equals(movie.getName())) {
                         user.getMovies().remove(toRemove);
-                        answer = movieStatus(movieName);
                         break;
                     }
                 }
                 //increase the amount of available copies of the movies by 1
                 movie.setAvailableAmount(movie.getAvailableAmount() + 1);
+                answer = movieStatus(movieName);
             }
         }
         finally {

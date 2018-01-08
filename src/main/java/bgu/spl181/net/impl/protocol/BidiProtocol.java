@@ -11,7 +11,7 @@ public abstract class BidiProtocol<T> implements BidiMessagingProtocol<T>{
     protected Connections connections;
     protected int connectionId;
     protected String userName;
-    private AtomicBoolean terminate;
+    protected AtomicBoolean terminate;
     protected DataHandler service;
 
     public BidiProtocol(DataHandler service) {

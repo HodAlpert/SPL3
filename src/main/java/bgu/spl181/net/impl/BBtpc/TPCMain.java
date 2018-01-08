@@ -8,6 +8,7 @@ import bgu.spl181.net.impl.encoder.LineMessageEncoderDecoder;
 public class TPCMain {
     public static void main(String[] args) {
         DataHandler service= new MovieRentalService();
+        System.out.println("tpc");
 
         MovieRentalTPCServer server = new MovieRentalTPCServer(Integer.parseInt(args[0]),
                 ()->new MovieRentalProtocol((MovieRentalService) service), //protocol factory

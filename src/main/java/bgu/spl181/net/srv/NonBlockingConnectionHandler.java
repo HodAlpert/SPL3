@@ -1,9 +1,7 @@
 package bgu.spl181.net.srv;
 
 import bgu.spl181.net.api.MessageEncoderDecoder;
-import bgu.spl181.net.api.MessagingProtocol;
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
-import bgu.spl181.net.api.bidi.Connections;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -79,7 +77,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     }
 
     public void continueWrite() {//committed by the SelectorThread
-        while (!writeQueue.isEmpty()) {
+        while (!writeQueue.isEmpty()&!isClosed()) {
             try {
                 ByteBuffer top = writeQueue.peek();
                 chan.write(top);//deletes bytes from the buffer and write them to WriteQueue

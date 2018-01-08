@@ -27,6 +27,7 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
             if(this.userName!=null && MRS.signOut(userName)){
                 this.userName = null;
                 connections.send(this.connectionId, new Message("ACK signout succeeded"));
+                terminate.set(true);
                 connections.disconnect(connectionId);
             }
             else

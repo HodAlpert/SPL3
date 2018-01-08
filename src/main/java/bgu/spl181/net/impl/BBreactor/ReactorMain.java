@@ -8,7 +8,9 @@ import bgu.spl181.net.impl.encoder.LineMessageEncoderDecoder;
 import bgu.spl181.net.srv.Reactor;
 
 public class ReactorMain {
+
     public static void main(String[] args) {
+        System.out.println("reactor");
         DataHandler<Message> service= new MovieRentalService();
                Reactor<Message> server = new Reactor<>(
                 10,//num of threads

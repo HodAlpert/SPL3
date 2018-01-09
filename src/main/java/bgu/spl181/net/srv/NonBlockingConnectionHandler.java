@@ -65,6 +65,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     }
 
     public void close() {
+        System.out.println("client disconnected");
         try {
             chan.close();
         } catch (IOException ex) {

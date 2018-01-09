@@ -3,7 +3,6 @@ package bgu.spl181.net.impl.protocol;
 import bgu.spl181.net.api.bidi.Connections;
 import bgu.spl181.net.srv.ConnectionHandler;
 
-import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerConnections<T> implements Connections<T> {
@@ -36,11 +35,6 @@ public class ServerConnections<T> implements Connections<T> {
 
     @Override
     public void disconnect(int connectionId) {
-        try {
-            map.get(connectionId).getHandler().close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         map.remove(connectionId);//TODO make sure connection handler closes itself
     }
 

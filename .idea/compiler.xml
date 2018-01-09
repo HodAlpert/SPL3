@@ -8,11 +8,13 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Server" />
         <module name="spl-net" />
+        <module name="SPL3" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Server" target="1.8" />
       <module name="spl-net" target="1.8" />
+      <module name="SPL3" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

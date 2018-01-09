@@ -12,6 +12,7 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
     @Override
     public void process(Message message) {
     MovieRentalService MRS = (MovieRentalService) service;
+    System.out.println(message);
         if(message instanceof Login){
             Login login = (Login) message;
             if(this.userName==null && !MRS.isLoggedIn(login.getUserName()) && MRS.loginValidation(login.getUserName(),login.getPassword()) ){
@@ -28,7 +29,7 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
                 this.userName = null;
                 connections.send(this.connectionId, new Message("ACK signout succeeded"));
                 terminate.set(true);
-               // connections.disconnect(connectionId);
+                connections.disconnect(connectionId);
             }
             else
                 connections.send(this.connectionId, new Message("ERROR signout failed"));

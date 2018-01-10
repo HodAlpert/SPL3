@@ -35,6 +35,8 @@ public class Message {
     }
 
     public String  toString(){
+        if(this.body==null)
+            return this.name;
         return this.name+" "+this.body;
     }
 }

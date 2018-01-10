@@ -41,13 +41,6 @@ public class Movie {
         return Integer.valueOf(totalAmount);
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public void setPrice(int price) {
         this.price = String.valueOf(price);
@@ -57,13 +50,7 @@ public class Movie {
         this.availableAmount = String.valueOf(availableAmount);
     }
 
-    public void setTotalAmount(int totalAmount) {
-        this.totalAmount = String.valueOf(totalAmount);
-    }
 
-    public void setBannedCountries(List<String> bannedCountries) {
-        this.bannedCountries = bannedCountries;
-    }
 
     @Override
     public String toString() {

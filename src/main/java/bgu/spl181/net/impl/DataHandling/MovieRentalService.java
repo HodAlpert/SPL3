@@ -90,16 +90,16 @@ public class MovieRentalService implements DataHandler<Message> {
      */
     @Override
     public boolean loginValidation(String name, String password) {
-        usersLock.readLock().lock();
+        usersLock.writeLock().lock();
         try {
-            if ((!users.containsKey(name)) || !users.get(name).getPassword().equals(password))
+            if ((!users.containsKey(name)) || !users.get(name).getPassword().equals(password)||loggedInUsers.contains(name))
                 return false;
             else
                 loggedInUsers.addIfAbsent(name);
             return true;
         }
         finally {
-            usersLock.readLock().unlock();
+            usersLock.writeLock().unlock();
 
         }
     }
@@ -355,7 +355,7 @@ public class MovieRentalService implements DataHandler<Message> {
         movieLock.writeLock().lock();
         boolean check;
         try {
-            check = isUserAdmin(userName) & isMovieExist(movieName) & userNotRentingMovie(userName, movieName);
+            check = isUserAdmin(userName) && isMovieExist(movieName) && movieNotRentedByAnyOne(movieName);
             if (check) {//checks condition Number 1
                 movielist.getMovies().remove(movies.get(movieName));
                 movies.remove(movieName);
@@ -372,6 +372,10 @@ public class MovieRentalService implements DataHandler<Message> {
 
 
         return false;
+    }
+
+    private boolean movieNotRentedByAnyOne(String movieName){
+        return movies.get(movieName).getTotalAmount()==movies.get(movieName).getAvailableAmount();
     }
 
     /**

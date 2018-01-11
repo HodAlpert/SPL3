@@ -448,13 +448,8 @@ public class MovieRentalService implements DataHandler<Message> {
             return true;
     }
     private boolean isUserAdmin(String userName){
-        usersLock.readLock().lock();
-        try{
             return users.get(userName).getType().equals("admin");
-        }
-        finally {
-            usersLock.readLock().unlock();
-        }
+
     }
     //assuming movie exist in database
     public String movieStatus(String name){

@@ -16,6 +16,7 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
             if(message.getName().equals("TERMINATE")){
                 terminate.set(true);
                 connections.disconnect(connectionId);
+
             }
             else if(message instanceof Login){
                 Login login = (Login) message;

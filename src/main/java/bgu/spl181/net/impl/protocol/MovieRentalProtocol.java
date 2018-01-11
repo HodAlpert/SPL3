@@ -13,7 +13,11 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
     public void process(Message message) {
         MovieRentalService MRS = (MovieRentalService) service;
         System.out.println("Client " + connectionId+": "+message);
-            if(message instanceof Login){
+            if(message.getName().equals("TERMINATE")){
+                terminate.set(true);
+                connections.disconnect(connectionId);
+            }
+            else if(message instanceof Login){
                 Login login = (Login) message;
                     if(this.userName==null && MRS.loginValidation(login.getUserName(),login.getPassword()) ){
                     this.userName = login.getUserName();
@@ -28,8 +32,6 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
                 if(this.userName!=null && MRS.signOut(userName)){
                     this.userName = null;
                     connections.send(this.connectionId, new Message("ACK signout succeeded"));
-                    terminate.set(true);
-                    connections.disconnect(connectionId);
                 }
                 else
                     connections.send(this.connectionId, new Message("ERROR signout failed"));
@@ -132,9 +134,7 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
             }
 
             else
-                System.out.println("An Illegal message was sent! "+message);
-    //            throw new IllegalArgumentException("An Illegal message was sent!");
-
+                System.out.println("An Illegal message was sent: "+message);
     }
 
     /**

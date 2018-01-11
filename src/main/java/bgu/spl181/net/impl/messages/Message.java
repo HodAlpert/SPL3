@@ -29,7 +29,7 @@ public class Message {
             return new Request(originalMessage);
        else if(name.equals("SIGNOUT"))
             return new Signout(originalMessage);
-       else if(name.equals("ACK") ||name.equals("ERROR") ||name.equals("BROADCAST"))
+       else if(name.equals("ACK") ||name.equals("ERROR") ||name.equals("BROADCAST")||name.equals("TERMINATE"))
            return this;
        return null; // if message not legal
     }

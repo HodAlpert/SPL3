@@ -275,8 +275,8 @@ public class MovieRentalService implements DataHandler<Message> {
     public String returnMovie(String userName, String movieName) {
         boolean check;
         String answer = null;
-        movieLock.writeLock().lock();
         usersLock.writeLock().lock();
+        movieLock.writeLock().lock();
         try {
             check = isUserExist(userName) && isMovieExist(movieName) && !userNotRentingMovie(userName, movieName);
             if (check) {

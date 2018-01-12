@@ -22,7 +22,7 @@ public class Reactor<T> implements Server<T> {
 
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
-    private Connections connections;
+    private Connections<T> connections;
     private AtomicInteger counter = new AtomicInteger(0);
 
     public Reactor(
@@ -35,7 +35,7 @@ public class Reactor<T> implements Server<T> {
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.readerFactory = readerFactory;
-        connections = new ServerConnections();
+        connections = new ServerConnections<>();
     }
 
     @Override
@@ -107,9 +107,9 @@ public class Reactor<T> implements Server<T> {
         SocketChannel clientChan = serverChan.accept();//configuring channel
         clientChan.configureBlocking(false);
         int connectionId = counter.getAndIncrement();
-        BidiMessagingProtocol protocol = protocolFactory.get();
+        BidiMessagingProtocol<T> protocol = protocolFactory.get();
 
-        final NonBlockingConnectionHandler handler = new NonBlockingConnectionHandler(//defining new connection handler for the client
+        final NonBlockingConnectionHandler<T> handler = new NonBlockingConnectionHandler<>(//defining new connection handler for the client
                 readerFactory.get(),
                 protocol,
                 clientChan,

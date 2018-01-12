@@ -14,8 +14,8 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
         MovieRentalService MRS = (MovieRentalService) service;
         System.out.println("Client " + connectionId+": "+message);
             if(message.getName().equals("TERMINATE")){
-                terminate.set(true);
                 connections.disconnect(connectionId);
+                terminate.set(true);
 
             }
             else if(message instanceof Login){
@@ -143,9 +143,9 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
      * @param message
      */
     private void broadcast(Message message){
-        for(Object client :((ServerConnections)connections).getMap().values())
-                    if(((ClientForConnections)client).isLoggedin())
-                        ((ClientForConnections)client).getHandler().send(message);
+        for(Object clientId :((ServerConnections)connections).getMap().keySet())
+            if((connections.isloggedIn(connectionId)))
+                connections.send(connectionId,message);
 
     }
 

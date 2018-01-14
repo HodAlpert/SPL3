@@ -52,7 +52,7 @@ public class ServerConnections<T> implements Connections<T> {
     public void disconnect(int connectionId) {
         lock.writeLock().lock();
         try {
-            map.remove(connectionId);//TODO make sure connection handler closes itself
+            map.remove(connectionId);
         }
         finally {
             lock.writeLock().unlock();

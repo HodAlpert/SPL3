@@ -17,14 +17,12 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     private BufferedInputStream in;
     private BufferedOutputStream out;
     private volatile boolean connected = true;
-    private Connections connections;
 
 
-    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, BidiMessagingProtocol<T> protocol,Connections connections) {
+    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, BidiMessagingProtocol<T> protocol) {
         this.sock = sock;
         this.encdec = reader;
         this.protocol = protocol;
-        this.connections=connections;
     }
 
     @Override
@@ -42,9 +40,8 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
                 }
             }
 
-
         } catch (IOException ex) {
-            System.out.println("client disconnected");
+            //client disconnected
         }
 
     }

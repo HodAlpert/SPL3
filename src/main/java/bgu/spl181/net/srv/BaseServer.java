@@ -37,10 +37,8 @@ public abstract class BaseServer<T> implements Server<T> {
     public void serve() {
 
         try (ServerSocket serverSock = new ServerSocket(port)) {
-			System.out.println("Server started");
-
             this.sock = serverSock; //just to be able to close
-
+            System.out.println("Server started");
             while (!Thread.currentThread().isInterrupted()) {
 
                 Socket clientSock = serverSock.accept();
@@ -48,8 +46,7 @@ public abstract class BaseServer<T> implements Server<T> {
                 BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<T>(
                         clientSock,
                         encderFactory.get(),
-                        protocol,
-                        this.connections);
+                        protocol);
                 protocol.start(connectCount.getAndIncrement(),connections,handler);
 
                 execute(handler);
@@ -57,8 +54,6 @@ public abstract class BaseServer<T> implements Server<T> {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-
-        System.out.println("server closed!!!");
     }
 
     @Override

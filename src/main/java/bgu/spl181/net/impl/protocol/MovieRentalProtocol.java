@@ -12,7 +12,6 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
     @Override
     public void process(Message message) {
         MovieRentalService MRS = (MovieRentalService) service;
-        System.out.println("Client " + connectionId+": "+message);
             if(message instanceof Login){
                 Login login = (Login) message;
                     if(this.userName==null && MRS.loginValidation(login.getUserName(),login.getPassword()) ){
@@ -130,9 +129,6 @@ public class MovieRentalProtocol extends BidiProtocol<Message>{
                     connections.send(this.connectionId, new Message("ERROR request changeprice failed"));
 
             }
-
-            else
-                System.out.println("An Illegal message was sent: "+message);
     }
 
     /**

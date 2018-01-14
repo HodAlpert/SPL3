@@ -15,8 +15,6 @@ public class LineMessageEncoderDecoder implements MessageEncoderDecoder<Message>
 
     @Override
     public Message decodeNextByte(byte nextByte) {
-        //notice that the top 128 ascii characters have the same representation as their utf-8 counterparts
-        //this allow us to do the following comparison
         if (nextByte == '\n') {
             return popMessage();
         }
@@ -39,11 +37,11 @@ public class LineMessageEncoderDecoder implements MessageEncoderDecoder<Message>
     }
 
     private Message popMessage() {
-        //notice that we explicitly requesting that the string will be decoded from UTF-8
-        //this is not actually required as it is the default encoding in java.
+
         String message = new String(bytes, 0, len, StandardCharsets.UTF_8);
         len = 0;
         Message newMessage = new Message(message);
+        //transform newMessage into it's final message form
         Message result = newMessage.unpackMessage();
         if(result instanceof Request || result instanceof Register)
             result = result.unpackMessage();

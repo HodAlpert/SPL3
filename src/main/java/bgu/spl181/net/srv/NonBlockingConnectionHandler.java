@@ -43,7 +43,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         }
 
         if (success) {
-            buf.flip();//????
+            buf.flip();
             return () -> {//lambda to give the executor
                 try {
                     while (buf.hasRemaining()) {

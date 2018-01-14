@@ -53,7 +53,6 @@ public class MovieRentalService implements DataHandler<Message> {
                 highestId.set(Integer.decode(movie.getId()));
             highestId.getAndIncrement();
         }
-        //System.out.println(this);
     }
 
     /**
@@ -295,8 +294,9 @@ public class MovieRentalService implements DataHandler<Message> {
             }
         }
         finally {
-                movieLock.writeLock().unlock();
                 usersLock.writeLock().unlock();
+                movieLock.writeLock().unlock();
+
             }
             if(check) {
                 refreshMovies();
